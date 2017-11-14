@@ -115,9 +115,9 @@ public class MarsRefreshView extends FrameLayout {
     }
 
     /**
-     * 当发生错误的时候（网络等）
+     * 当发生错误时调用（网络/服务器宕机等）
      * <p>
-     * 记得 page--
+     * onLoadMore里要 page--
      */
     public void onError() {
         mFooterView.onError();
