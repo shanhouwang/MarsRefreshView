@@ -1,0 +1,11 @@
+<resources>
+    <declare-styleable name="mars">
+        <attr name="isListView" format="boolean" />
+        <attr name="footerTextVisible" format="boolean" />
+        <attr name="footerTextColor" format="color" />
+        <attr name="onLoadingText" format="string" />
+        <attr name="onLoadingErrorText" format="string" />
+        <attr name="onLoadingCompleteText" format="string" />
+        <attr name="footerTextSize" format="integer" />
+    </declare-styleable>
+</resources>
