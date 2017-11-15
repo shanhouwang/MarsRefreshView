@@ -53,7 +53,7 @@ public class MarsRefreshView extends FrameLayout {
     /**
      * 是否还有更多
      */
-    private boolean isLoadMoreEnable;
+    private boolean isLoadMoreEnable = true;
 
     private WrapperAdapter mWrapperAdapter;
     private RecyclerViewAdapterDataObserver mRecyclerViewAdapterDataObserver;
@@ -125,7 +125,6 @@ public class MarsRefreshView extends FrameLayout {
      */
     public void setRefreshing(boolean refreshing) {
         mSwipeRefreshLayout.setRefreshing(refreshing);
-        isLoadMoreEnable = true;
         if (refreshing && mMarsOnLoadListener != null) {
             mMarsOnLoadListener.onRefresh();
         }

@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.devin.refreshview.MarsOnLoadListener;
 import com.devin.refreshview.MarsRefreshView;
@@ -33,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         View v = LayoutInflater.from(this).inflate(R.layout.layout_footer, null);
         v.setBackgroundColor(getResources().getColor(R.color._ffffff));
-        ((TextView)(v.findViewById(R.id.tv_footer))).setText("HeaderView 1 ");
+        ((TextView) (v.findViewById(R.id.tv_footer))).setText("HeaderView 1 ");
         RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, 200);
         v.setLayoutParams(params);
         mMarsRefreshView.addHeaderView(v);
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
                     data.add(i + "");
                 }
                 mAdapter.bindData(data);
-
                 mMarsRefreshView.setRefreshing(false);
             }
 
@@ -56,7 +54,5 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mMarsRefreshView.setRefreshing(true);
-
-        mMarsRefreshView.onError();
     }
 }
