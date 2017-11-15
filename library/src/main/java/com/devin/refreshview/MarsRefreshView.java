@@ -221,9 +221,12 @@ public class MarsRefreshView extends FrameLayout {
                 if (manager instanceof LinearLayoutManager) {
                     int lastVisibleItemPosition = ((LinearLayoutManager) manager).findLastVisibleItemPosition();
                     Log.d("MarsOnScrollListener", ">>>>>lastVisibleItemPosition: " + lastVisibleItemPosition);
-                    if (lastVisibleItemPosition == recyclerView.getAdapter().getItemCount() - 1
-                            && lastVisibleItemPosition - 1 != 0
-                            && (lastVisibleItemPosition - 1) % pageSize == 0) {
+                    if (lastVisibleItemPosition == recyclerView.getAdapter().getItemCount() - 1) {
+                        if (lastVisibleItemPosition - 1 != 0 && (lastVisibleItemPosition - 1) % pageSize == 0) {
+                            isLoadMoreEnable = true;
+                        } else {
+                            isLoadMoreEnable = false;
+                        }
                         if (mMarsOnLoadListener != null && isLoadMoreEnable) {
                             mMarsOnLoadListener.onLoadMore();
                         }
@@ -260,7 +263,11 @@ public class MarsRefreshView extends FrameLayout {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             Log.d("WrapperAdapter", ">>>>>onBindViewHolder: " + position + ", viewType: " + getItemViewType(position));
             if (getItemViewType(position) == TYPE_FOOTER) {
-                mFooterView.onLoadingStyle();
+                if (isLoadMoreEnable) {
+                    mFooterView.onLoadingStyle();
+                } else {
+                    mFooterView.onCompleteStyle();
+                }
             } else if (getItemViewType(position) == TYPE_HEADER) {
             } else {
                 adapter.onBindViewHolder(holder, position - 1);

@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.devin.refreshview.MarsOnLoadListener;
 import com.devin.refreshview.MarsRefreshView;
@@ -51,13 +52,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLoadMore() {
-                for (int i = 10; i < 20; i++) {
-                    data.add(i + "");
-                }
-                mAdapter.bindData(data);
             }
         });
 
         mMarsRefreshView.setRefreshing(true);
+
+        mMarsRefreshView.onError();
     }
 }

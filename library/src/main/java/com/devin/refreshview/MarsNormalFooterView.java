@@ -4,9 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,11 +22,14 @@ public class MarsNormalFooterView extends MarsOnLoadMoreView {
     public TextView tvFooter;
 
     private String onLoadingText = "疯狂加载中";
-    private String onLoadingErrorText = "点击加载更多";
+    private String onLoadingErrorText = "加载出现了问题";
     private String onLoadingCompleteText = "--  没有更多了  --";
+
+    private Context mContext;
 
     public MarsNormalFooterView(Context context) {
         super(context);
+        mContext = context;
         initView(context);
     }
 
@@ -61,7 +65,9 @@ public class MarsNormalFooterView extends MarsOnLoadMoreView {
     }
 
     private void initView(Context context) {
-        setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        LayoutParams params = new LayoutParams(-1, dp2px(48));
+        params.gravity = Gravity.CENTER;
+        setLayoutParams(params);
         setBackgroundColor(getResources().getColor(R.color._00000000));
         View v = LayoutInflater.from(context).inflate(R.layout.layout_footer, this, false);
         addView(v);
@@ -87,5 +93,15 @@ public class MarsNormalFooterView extends MarsOnLoadMoreView {
     public void onErrorStyle() {
         tvFooter.setText(onLoadingErrorText);
         pbFooter.setVisibility(View.GONE);
+    }
+
+    /**
+     * dp转px
+     *
+     * @param dp dp值
+     * @return px值
+     */
+    public int dp2px(float dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, mContext.getResources().getDisplayMetrics());
     }
 }
