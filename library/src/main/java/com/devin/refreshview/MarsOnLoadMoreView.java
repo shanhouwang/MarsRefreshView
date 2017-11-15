@@ -1,40 +1,32 @@
 package com.devin.refreshview;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.util.AttributeSet;
-import android.view.View;
+import android.widget.FrameLayout;
 
 /**
  * Created by Devin on 2017/11/14.
+ *
+ * @author Devin
  */
 
-public abstract class MarsOnLoadMoreView extends View {
+public abstract class MarsOnLoadMoreView extends FrameLayout {
 
     public MarsOnLoadMoreView(Context context) {
         super(context);
     }
 
-    public MarsOnLoadMoreView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public MarsOnLoadMoreView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
+    /**
+     * 结束的样式
+     */
+    public abstract void onCompleteStyle();
 
     /**
-     * 结束
+     * 正在加载中的样式
      */
-    public abstract void onComplete();
+    public abstract void onLoadingStyle();
 
     /**
-     * 正在加载中
+     * 出现错误的样式
      */
-    public abstract void onLoading();
-
-    /**
-     * 出现错误
-     */
-    public abstract void onError();
+    public abstract void onErrorStyle();
 }

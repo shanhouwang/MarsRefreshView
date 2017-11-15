@@ -9,8 +9,10 @@
 
     <com.devin.refreshview.MarsRefreshView
         android:id="@+id/marsRefreshView"
+        android:background="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mars:isListView="false" />
+        mars:isListView="false"
+        mars:onLoadingText="加载中..." />
 
 </LinearLayout>
