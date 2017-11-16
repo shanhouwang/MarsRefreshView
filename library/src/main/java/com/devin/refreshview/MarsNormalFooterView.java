@@ -22,7 +22,7 @@ public class MarsNormalFooterView extends MarsOnLoadMoreView {
     public TextView tvFooter;
 
     private String onLoadingText = "疯狂加载中";
-    private String onLoadingErrorText = "加载出现了问题";
+    private String onLoadingErrorText = "上拉加载更多";
     private String onLoadingCompleteText = "--  没有更多了  --";
 
     private Context mContext;
@@ -66,10 +66,10 @@ public class MarsNormalFooterView extends MarsOnLoadMoreView {
 
     private void initView(Context context) {
         LayoutParams params = new LayoutParams(-1, dp2px(48));
-        params.gravity = Gravity.CENTER;
         setLayoutParams(params);
         setBackgroundColor(getResources().getColor(R.color._00000000));
-        View v = LayoutInflater.from(context).inflate(R.layout.layout_footer, this, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.layout_footer, null);
+        v.setLayoutParams(params);
         addView(v);
         pbFooter = v.findViewById(R.id.pb_footer);
         tvFooter = v.findViewById(R.id.tv_footer);

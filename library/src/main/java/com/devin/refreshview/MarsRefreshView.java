@@ -173,7 +173,6 @@ public class MarsRefreshView extends FrameLayout {
      */
     public void onError() {
         mFooterView.onErrorStyle();
-        isLoadMoreEnable = false;
     }
 
     private View mHeaderView;
@@ -223,10 +222,12 @@ public class MarsRefreshView extends FrameLayout {
                     if (lastVisibleItemPosition == recyclerView.getAdapter().getItemCount() - 1) {
                         if (lastVisibleItemPosition - 1 != 0 && (lastVisibleItemPosition - 1) % pageSize == 0) {
                             isLoadMoreEnable = true;
+                            mFooterView.onLoadingStyle();
                         } else {
                             isLoadMoreEnable = false;
+                            mFooterView.onCompleteStyle();
                         }
-                        if (mMarsOnLoadListener != null && isLoadMoreEnable) {
+                        if (isLoadMoreEnable && mMarsOnLoadListener != null) {
                             mMarsOnLoadListener.onLoadMore();
                         }
                     }

@@ -50,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLoadMore() {
+                boolean isConnected = NetWorkUtils.isNetworkConnected(getApplicationContext());
+                if (!isConnected) {
+                    mMarsRefreshView.onError();
+                }
             }
         });
 
