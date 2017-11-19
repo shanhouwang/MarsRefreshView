@@ -51,9 +51,11 @@ public class MarsRefreshView extends FrameLayout {
     private LinearLayoutManager mLinearLayoutManager;
 
     /**
-     * 是否还有更多
+     * 是否有加载下一页的能力
      */
     private boolean isLoadMoreEnable = true;
+
+    private boolean isComplete;
 
     private WrapperAdapter mWrapperAdapter;
     private RecyclerViewAdapterDataObserver mRecyclerViewAdapterDataObserver;
@@ -126,6 +128,7 @@ public class MarsRefreshView extends FrameLayout {
     public void setRefreshing(boolean refreshing) {
         mSwipeRefreshLayout.setRefreshing(refreshing);
         if (refreshing && mMarsOnLoadListener != null) {
+            isComplete = false;
             mMarsOnLoadListener.onRefresh();
         }
     }
@@ -175,6 +178,14 @@ public class MarsRefreshView extends FrameLayout {
         mFooterView.onErrorStyle();
     }
 
+    /**
+     * 当加载结束时
+     */
+    public void onComplete() {
+        isComplete = true;
+        mFooterView.onCompleteStyle();
+    }
+
     private View mHeaderView;
 
     public void addHeaderView(View v) {
@@ -220,7 +231,11 @@ public class MarsRefreshView extends FrameLayout {
                     int lastVisibleItemPosition = ((LinearLayoutManager) manager).findLastVisibleItemPosition();
                     Log.d("MarsOnScrollListener", ">>>>>lastVisibleItemPosition: " + lastVisibleItemPosition);
                     if (lastVisibleItemPosition == recyclerView.getAdapter().getItemCount() - 1) {
-                        if (lastVisibleItemPosition - 1 != 0 && (lastVisibleItemPosition - 1) % pageSize == 0) {
+                        if (isComplete) {
+                            return;
+                        }
+                        if (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) != 0
+                                && (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0)) % pageSize == 0) {
                             isLoadMoreEnable = true;
                             mFooterView.onLoadingStyle();
                         } else {

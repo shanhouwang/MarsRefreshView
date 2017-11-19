@@ -3,6 +3,7 @@ package com.devin.test;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) (v.findViewById(R.id.tv_footer))).setText("HeaderView 1 ");
         RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, 200);
         v.setLayoutParams(params);
-        mMarsRefreshView.addHeaderView(v);
+//        mMarsRefreshView.addHeaderView(v);
 
         mMarsRefreshView.setMarsOnLoadListener(new MarsOnLoadListener() {
             @Override
@@ -50,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLoadMore() {
+                Log.d("MainActivity", ">>>>>onLoadMore");
+                mMarsRefreshView.onComplete();
                 boolean isConnected = NetWorkUtils.isNetworkConnected(getApplicationContext());
                 if (!isConnected) {
                     mMarsRefreshView.onError();
