@@ -5,7 +5,7 @@ android {
     compileSdkVersion 26
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -32,17 +32,12 @@ tasks.withType(Javadoc) {
     options.addStringOption('charSet', 'UTF-8')
 }
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'org.aspectj:aspectjrt:1.8.10'
-}
-
 // 添加
 publish {
     userOrg = 'shanhouwang'
     groupId = 'com.devin'
     artifactId = 'mars-refresh'
-    publishVersion = '0.0.2'
+    publishVersion = '0.0.3'
     desc = 'A Android Refresh Library'
     website = 'https://github.com/shanhouwang/MarsRefreshView'
 }

@@ -5,7 +5,7 @@
 repositories {
     jcenter()
 }
-compile ('com.devin:mars-refresh:0.0.1')
+compile ('com.devin:mars-refresh:0.0.3')
 ```
 ## 如何使用
 #### 1、XML布局
@@ -46,10 +46,11 @@ mMarsRefreshView.setMarsOnLoadListener(new MarsOnLoadListener() {
     @Override
     public void onLoadMore() {
         // 上拉加载更多网络耗时操作
+        如果 已经加载完所有的数据需要设置
+        mMarsRefreshView.onComplete();
         如果 手机无网络 或者 访问不到服务器 httpCode不为200的情况下，要设置
         mMarsRefreshView.onError();
-        // 还要记得记得设置 page--
-        page--;
+        // 此时还要记得记得设置 page--
     }
 });
 // 注意 setMarsOnLoadListener 在 setRefreshing(true)之上
