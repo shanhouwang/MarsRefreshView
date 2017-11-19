@@ -270,7 +270,7 @@ public class MarsRefreshView extends FrameLayout {
                 }
             } else if (getItemViewType(position) == TYPE_HEADER) {
             } else {
-                adapter.onBindViewHolder(holder, position - 1);
+                adapter.onBindViewHolder(holder, mHeaderView != null ? position - 1 : position);
             }
         }
 
@@ -279,7 +279,7 @@ public class MarsRefreshView extends FrameLayout {
             Log.d("WrapperAdapter", ">>>>>getItemViewType: " + position);
             if (mHeaderView != null && position == 0) {
                 return TYPE_HEADER;
-            } else if (position == adapter.getItemCount() + 1) {
+            } else if (position == adapter.getItemCount() + (mHeaderView != null ? 1 : 0)) {
                 return TYPE_FOOTER;
             }
             return super.getItemViewType(position);
@@ -287,7 +287,8 @@ public class MarsRefreshView extends FrameLayout {
 
         @Override
         public int getItemCount() {
-            return adapter.getItemCount() + 1 + 1;
+            int count = mHeaderView != null ? adapter.getItemCount() + 2 : adapter.getItemCount() + 1;
+            return count;
         }
 
         public class HeaderViewHolder extends RecyclerView.ViewHolder {

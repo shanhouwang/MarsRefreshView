@@ -40,10 +40,10 @@ dependencies {
 
 // 添加
 publish {
-    userOrg = 'shanhouwang' // jCenter用户名
+    userOrg = 'shanhouwang'
     groupId = 'com.devin'
-    artifactId = 'mars-refresh' //项目名称
-    publishVersion = '0.0.1' //版本号
-    desc = 'A Android Refresh Library' // 描述
+    artifactId = 'mars-refresh'
+    publishVersion = '0.0.2'
+    desc = 'A Android Refresh Library'
     website = 'https://github.com/shanhouwang/MarsRefreshView'
 }
