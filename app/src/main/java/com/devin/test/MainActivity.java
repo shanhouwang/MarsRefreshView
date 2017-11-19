@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) (v.findViewById(R.id.tv_footer))).setText("HeaderView 1 ");
         RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, 200);
         v.setLayoutParams(params);
-//        mMarsRefreshView.addHeaderView(v);
+        mMarsRefreshView.addHeaderView(v);
 
         mMarsRefreshView.setMarsOnLoadListener(new MarsOnLoadListener() {
             @Override
