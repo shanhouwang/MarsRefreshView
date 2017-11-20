@@ -52,11 +52,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLoadMore() {
                 Log.d("MainActivity", ">>>>>onLoadMore");
-                mMarsRefreshView.onComplete();
+                for (int i = 0; i < 8; i++) {
+                    data.add(i + "");
+                }
+                mAdapter.bindData(data);
                 boolean isConnected = NetWorkUtils.isNetworkConnected(getApplicationContext());
                 if (!isConnected) {
                     mMarsRefreshView.onError();
                 }
+                mMarsRefreshView.onComplete();
             }
         });
 

@@ -278,11 +278,6 @@ public class MarsRefreshView extends FrameLayout {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             Log.d("WrapperAdapter", ">>>>>onBindViewHolder: " + position + ", viewType: " + getItemViewType(position));
             if (getItemViewType(position) == TYPE_FOOTER) {
-                if (isLoadMoreEnable) {
-                    mFooterView.onLoadingStyle();
-                } else {
-                    mFooterView.onCompleteStyle();
-                }
             } else if (getItemViewType(position) == TYPE_HEADER) {
             } else {
                 adapter.onBindViewHolder(holder, mHeaderView != null ? position - 1 : position);

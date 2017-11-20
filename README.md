@@ -5,7 +5,7 @@
 repositories {
     jcenter()
 }
-compile ('com.devin:mars-refresh:0.0.3')
+compile ('com.devin:mars-refresh:0.0.3-alpha-1')
 ```
 ## 如何使用
 #### 1、XML布局

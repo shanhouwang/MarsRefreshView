@@ -37,7 +37,7 @@ publish {
     userOrg = 'shanhouwang'
     groupId = 'com.devin'
     artifactId = 'mars-refresh'
-    publishVersion = '0.0.3'
+    publishVersion = '0.0.3-alpha-1'
     desc = 'A Android Refresh Library'
     website = 'https://github.com/shanhouwang/MarsRefreshView'
 }
