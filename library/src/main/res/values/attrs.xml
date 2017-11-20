@@ -7,5 +7,7 @@
         <attr name="onLoadingErrorText" format="string" />
         <attr name="onLoadingCompleteText" format="string" />
         <attr name="footerTextSize" format="integer" />
+        <attr name="isSupportRefresh" format="boolean" />
+        <attr name="isHaveFooterView" format="boolean" />
     </declare-styleable>
 </resources>

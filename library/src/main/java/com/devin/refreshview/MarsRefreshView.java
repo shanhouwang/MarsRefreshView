@@ -44,6 +44,16 @@ public class MarsRefreshView extends FrameLayout {
      */
     private boolean isHaveListView;
 
+    /**
+     * 是否支持下拉刷新
+     */
+    private boolean isSupportRefresh = true;
+
+    /**
+     * 是否有FooterView
+     */
+    private boolean isHaveFooterView = true;
+
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private ListView mListView;
     private RecyclerView mRecyclerView;
@@ -62,35 +72,56 @@ public class MarsRefreshView extends FrameLayout {
 
     private void initView(Context context, AttributeSet attrs) {
         mContext = context;
-        mFooterView = new MarsNormalFooterView(mContext);
         if (attrs != null) {
             TypedArray attrsArray = context.obtainStyledAttributes(attrs, R.styleable.mars);
             isHaveListView = attrsArray.getBoolean(R.styleable.mars_isListView, false);
-            ((MarsNormalFooterView) mFooterView).setAttributeSet(attrsArray);
+            isSupportRefresh = attrsArray.getBoolean(R.styleable.mars_isSupportRefresh, true);
+            isHaveFooterView = attrsArray.getBoolean(R.styleable.mars_isHaveFooterView, true);
+            if (isHaveFooterView) {
+                mFooterView = new MarsNormalFooterView(mContext);
+                ((MarsNormalFooterView) mFooterView).setAttributeSet(attrsArray);
+            }
         } else {
+            isSupportRefresh = true;
             isHaveListView = false;
+            isHaveFooterView = true;
+            mFooterView = new MarsNormalFooterView(mContext);
         }
-        mSwipeRefreshLayout = new SwipeRefreshLayout(mContext);
-        FrameLayout.LayoutParams srfParams = new FrameLayout.LayoutParams(-1, -1);
-        mSwipeRefreshLayout.setLayoutParams(srfParams);
-        addView(mSwipeRefreshLayout);
+        if (isSupportRefresh) {
+            mSwipeRefreshLayout = new SwipeRefreshLayout(mContext);
+            FrameLayout.LayoutParams srfParams = new FrameLayout.LayoutParams(-1, -1);
+            mSwipeRefreshLayout.setLayoutParams(srfParams);
+            addView(mSwipeRefreshLayout);
+        }
         if (isHaveListView) {
             mListView = new ListView(context);
-            SwipeRefreshLayout.LayoutParams lvParams = new SwipeRefreshLayout.LayoutParams(-1, -1);
-            mListView.setLayoutParams(lvParams);
-            mSwipeRefreshLayout.addView(mListView);
+            if (isSupportRefresh) {
+                SwipeRefreshLayout.LayoutParams lvParams = new SwipeRefreshLayout.LayoutParams(-1, -1);
+                mListView.setLayoutParams(lvParams);
+                mSwipeRefreshLayout.addView(mListView);
+            } else {
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(-1, -1);
+                mListView.setLayoutParams(params);
+                addView(mListView);
+            }
         } else {
             mRecyclerView = new RecyclerView(context);
-            SwipeRefreshLayout.LayoutParams lvParams = new SwipeRefreshLayout.LayoutParams(-1, -1);
-            mRecyclerView.setLayoutParams(lvParams);
-            mSwipeRefreshLayout.addView(mRecyclerView);
-            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    setRefreshing(true);
-                }
-            });
-            mRecyclerView.addOnScrollListener(new MarsOnScrollListener());
+            if (isSupportRefresh) {
+                SwipeRefreshLayout.LayoutParams lvParams = new SwipeRefreshLayout.LayoutParams(-1, -1);
+                mRecyclerView.setLayoutParams(lvParams);
+                mSwipeRefreshLayout.addView(mRecyclerView);
+                mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        setRefreshing(true);
+                    }
+                });
+                mRecyclerView.addOnScrollListener(new MarsOnScrollListener());
+            } else {
+                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(-1, -1);
+                mRecyclerView.setLayoutParams(params);
+                addView(mRecyclerView);
+            }
         }
     }
 
@@ -126,11 +157,46 @@ public class MarsRefreshView extends FrameLayout {
      * @param refreshing
      */
     public void setRefreshing(boolean refreshing) {
+        if (!isSupportRefresh) {
+            throw new RuntimeException("如果使用下拉刷新，请设置isSupportRefresh为true");
+        }
         mSwipeRefreshLayout.setRefreshing(refreshing);
         if (refreshing && mMarsOnLoadListener != null) {
             isComplete = false;
             mMarsOnLoadListener.onRefresh();
         }
+    }
+
+    private View mEmptyView;
+
+    /**
+     * 设置数据为空的布局
+     *
+     * @param v
+     */
+    public void setEmptyView(View v) {
+        if (v == null) {
+            throw new RuntimeException("EmptyView 为 Null");
+        }
+        mEmptyView = v;
+        v.setVisibility(View.GONE);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(-1, -1);
+        v.setLayoutParams(params);
+        addView(v);
+    }
+
+    /**
+     * 显示空的布局
+     */
+    public void showEmptyView() {
+        mEmptyView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * 隐藏空的布局
+     */
+    public void hideEmptyView() {
+        mEmptyView.setVisibility(View.GONE);
     }
 
     /**
@@ -225,7 +291,7 @@ public class MarsRefreshView extends FrameLayout {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
-            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (isHaveFooterView && newState == RecyclerView.SCROLL_STATE_IDLE) {
                 RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
                 if (manager instanceof LinearLayoutManager) {
                     int lastVisibleItemPosition = ((LinearLayoutManager) manager).findLastVisibleItemPosition();
@@ -289,7 +355,7 @@ public class MarsRefreshView extends FrameLayout {
             Log.d("WrapperAdapter", ">>>>>getItemViewType: " + position);
             if (mHeaderView != null && position == 0) {
                 return TYPE_HEADER;
-            } else if (position == adapter.getItemCount() + (mHeaderView != null ? 1 : 0)) {
+            } else if (mFooterView != null && position == adapter.getItemCount() + (mHeaderView != null ? 1 : 0)) {
                 return TYPE_FOOTER;
             }
             return super.getItemViewType(position);
@@ -297,7 +363,14 @@ public class MarsRefreshView extends FrameLayout {
 
         @Override
         public int getItemCount() {
-            int count = mHeaderView != null ? adapter.getItemCount() + 2 : adapter.getItemCount() + 1;
+            int count;
+            if (mHeaderView == null && mFooterView == null) {
+                count = adapter.getItemCount();
+            } else if (mHeaderView != null && mFooterView != null) {
+                count = adapter.getItemCount() + 2;
+            } else {
+                count = adapter.getItemCount() + 1;
+            }
             return count;
         }
 
