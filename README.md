@@ -34,6 +34,9 @@ mMarsRefreshView.setMarsOnLoadListener(new MarsOnLoadListener() {
     @Override
     public void onRefresh() {
         // 下拉刷新网络耗时操作
+        ...
+        // 下拉刷新网络耗时操作结束时
+        mMarsRefreshView.setRefreshing(false);
     }
 
     @Override
