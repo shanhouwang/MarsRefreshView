@@ -13,6 +13,7 @@ import com.devin.refreshview.MarsRefreshView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
     private MyRecyclerViewAdapter mAdapter;
 
     List<String> data = new ArrayList<>();
+
+    private int page;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,33 +40,53 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, 200);
         v.setLayoutParams(params);
         mMarsRefreshView.addHeaderView(v);
+        mMarsRefreshView.setPageSize(10);
 
         mMarsRefreshView.setMarsOnLoadListener(new MarsOnLoadListener() {
             @Override
             public void onRefresh() {
                 data.clear();
-                for (int i = 0; i < 10; i++) {
-                    data.add(i + "");
-                }
-                mAdapter.bindData(data);
-                mMarsRefreshView.setRefreshing(false);
+                page = 1;
+                ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
+                    @Override
+                    public void onResponse(Object obj) {
+                        mAdapter.bindData(data);
+                        mMarsRefreshView.setRefreshing(false);
+                    }
+                }).schedule(new ThreadUtils.TpRunnable() {
+                    @Override
+                    public Object execute() {
+                        for (int i = 0; i < 10; i++) {
+                            data.add("onRefresh: " + i);
+                        }
+                        return null;
+                    }
+                }, 1 * 1000, TimeUnit.MILLISECONDS);
             }
 
             @Override
             public void onLoadMore() {
-                Log.d("MainActivity", ">>>>>onLoadMore");
-                for (int i = 0; i < 8; i++) {
-                    data.add(i + "");
+                if (page == 20) {
+                    mMarsRefreshView.onComplete();
                 }
-                mAdapter.bindData(data);
-                boolean isConnected = NetWorkUtils.isNetworkConnected(getApplicationContext());
-                if (!isConnected) {
-                    mMarsRefreshView.onError();
-                }
-                mMarsRefreshView.onComplete();
+                ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
+                    @Override
+                    public void onResponse(Object obj) {
+                        mAdapter.bindData(data);
+                    }
+                }).schedule(new ThreadUtils.TpRunnable() {
+                    @Override
+                    public Object execute() {
+                        page++;
+                        Log.d("MainActivity", ">>>>>onLoadMore, page: " + page);
+                        for (int i = 0; i < 10; i++) {
+                            data.add("onLoadMore: " + i + ", page: " + page);
+                        }
+                        return null;
+                    }
+                }, 100, TimeUnit.MILLISECONDS);
             }
         });
-
         mMarsRefreshView.setRefreshing(true);
     }
 }

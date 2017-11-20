@@ -2,6 +2,8 @@ package com.devin.refreshview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -267,6 +269,8 @@ public class MarsRefreshView extends FrameLayout {
         mFooterView = v;
     }
 
+    public static Handler mHandler = new Handler(Looper.getMainLooper());
+
     /**
      * 当数据发生改变的时候
      *
@@ -277,6 +281,12 @@ public class MarsRefreshView extends FrameLayout {
         public void onChanged() {
             super.onChanged();
             mWrapperAdapter.notifyDataSetChanged();
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onLoadMore();
+                }
+            }, 100);
         }
     }
 
@@ -285,34 +295,37 @@ public class MarsRefreshView extends FrameLayout {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
-            Log.d("MarsOnScrollListener", ">>>>>dx: " + dx + " , dy: " + dy);
         }
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
             if (isHaveFooterView && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
-                if (manager instanceof LinearLayoutManager) {
-                    int lastVisibleItemPosition = ((LinearLayoutManager) manager).findLastVisibleItemPosition();
-                    Log.d("MarsOnScrollListener", ">>>>>lastVisibleItemPosition: " + lastVisibleItemPosition);
-                    if (lastVisibleItemPosition == recyclerView.getAdapter().getItemCount() - 1) {
-                        if (isComplete) {
-                            return;
-                        }
-                        if (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) != 0
-                                && (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0)) % pageSize == 0) {
-                            isLoadMoreEnable = true;
-                            mFooterView.onLoadingStyle();
-                        } else {
-                            isLoadMoreEnable = false;
-                            mFooterView.onCompleteStyle();
-                        }
-                        if (isLoadMoreEnable && mMarsOnLoadListener != null) {
-                            mMarsOnLoadListener.onLoadMore();
-                        }
-                    }
-                }
+                onLoadMore();
+            }
+        }
+    }
+
+    /**
+     * 判定是否开始加载更多
+     */
+    private void onLoadMore() {
+        int lastVisibleItemPosition = mLinearLayoutManager.findLastVisibleItemPosition();
+        Log.d("onLoadMore", ">>>>>lastVisibleItemPosition: " + lastVisibleItemPosition);
+        if (lastVisibleItemPosition == mRecyclerView.getAdapter().getItemCount() - 1) {
+            if (isComplete) {
+                return;
+            }
+            if (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) != 0
+                    && (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0)) % pageSize == 0) {
+                isLoadMoreEnable = true;
+                mFooterView.onLoadingStyle();
+            } else {
+                isLoadMoreEnable = false;
+                mFooterView.onCompleteStyle();
+            }
+            if (isLoadMoreEnable && mMarsOnLoadListener != null) {
+                mMarsOnLoadListener.onLoadMore();
             }
         }
     }
