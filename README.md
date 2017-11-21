@@ -5,7 +5,7 @@
 repositories {
     jcenter()
 }
-compile ('com.devin:mars-refresh:0.0.3-alpha-2')
+compile ('com.devin:mars-refresh:0.0.3-alpha-4')
 ```
 ## 如何使用
 #### 1、XML布局
@@ -69,6 +69,14 @@ mMarsRefreshView.hideEmptyView();
 #### 6、设置每页加载数据多少条默认10条
 ```
 mMarsRefreshView.setPageSize(int pageSize);
+```
+#### 7、预加载设置
+```
+// 开启 默认在倒数第5个位置开始加载下一页数据
+mMarsRefreshView.setPreLoadMoreEnable(true);
+
+// 设置自己的Offset
+mMarsRefreshView.setPreLoadMoreEnable(offset);
 ```
 ## 混淆配置
 
