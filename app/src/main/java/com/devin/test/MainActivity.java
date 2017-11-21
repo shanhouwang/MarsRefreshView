@@ -39,8 +39,9 @@ public class MainActivity extends AppCompatActivity {
         ((TextView) (v.findViewById(R.id.tv_footer))).setText("HeaderView 1 ");
         RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, 200);
         v.setLayoutParams(params);
+        v.setBackgroundColor(getResources().getColor(R.color._aaaaaa));
         mMarsRefreshView.addHeaderView(v);
-        mMarsRefreshView.setPageSize(10);
+        mMarsRefreshView.setPreLoadMoreEnable(true);
 
         mMarsRefreshView.setMarsOnLoadListener(new MarsOnLoadListener() {
             @Override
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                 }).schedule(new ThreadUtils.TpRunnable() {
                     @Override
                     public Object execute() {
-                        for (int i = 0; i < 10; i++) {
+                        for (int i = 0; i < 9; i++) {
                             data.add("onRefresh: " + i);
                         }
                         return null;
@@ -66,8 +67,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLoadMore() {
-                if (page == 20) {
-                    mMarsRefreshView.onComplete();
+                page++;
+                if (!NetWorkUtils.isNetworkConnected(getApplicationContext())) {
+                    page--;
+                    mMarsRefreshView.onError();
+                    return;
                 }
                 ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
                     @Override
@@ -77,14 +81,13 @@ public class MainActivity extends AppCompatActivity {
                 }).schedule(new ThreadUtils.TpRunnable() {
                     @Override
                     public Object execute() {
-                        page++;
                         Log.d("MainActivity", ">>>>>onLoadMore, page: " + page);
                         for (int i = 0; i < 10; i++) {
                             data.add("onLoadMore: " + i + ", page: " + page);
                         }
                         return null;
                     }
-                }, 100, TimeUnit.MILLISECONDS);
+                }, 500, TimeUnit.MILLISECONDS);
             }
         });
         mMarsRefreshView.setRefreshing(true);

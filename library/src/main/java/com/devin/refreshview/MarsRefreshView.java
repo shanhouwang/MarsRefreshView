@@ -166,6 +166,7 @@ public class MarsRefreshView extends FrameLayout {
         if (refreshing && mMarsOnLoadListener != null) {
             isComplete = false;
             mMarsOnLoadListener.onRefresh();
+            mRecyclerView.setTag(R.id.pre_load_more, null);
         }
     }
 
@@ -243,6 +244,8 @@ public class MarsRefreshView extends FrameLayout {
      * onLoadMore里要 page--
      */
     public void onError() {
+        // 先这么解决
+        mPreLoadMoreEnable = false;
         mFooterView.onErrorStyle();
     }
 
@@ -269,6 +272,23 @@ public class MarsRefreshView extends FrameLayout {
         mFooterView = v;
     }
 
+    private boolean mPreLoadMoreEnable;
+
+    /**
+     * 偏移量（在倒数第几开始加载）
+     */
+    private int offset;
+
+    public void setPreLoadMoreEnable(boolean preLoadMoreEnable) {
+        mPreLoadMoreEnable = preLoadMoreEnable;
+        offset = 5;
+    }
+
+    public void setPreLoadMoreEnable(int offset) {
+        mPreLoadMoreEnable = true;
+        this.offset = offset;
+    }
+
     public static Handler mHandler = new Handler(Looper.getMainLooper());
 
     /**
@@ -290,19 +310,59 @@ public class MarsRefreshView extends FrameLayout {
         }
     }
 
+    private class PreLoadMoreInfo {
+        int loadPosition;
+        int lastVisiblePosition;
+    }
+
     private class MarsOnScrollListener extends RecyclerView.OnScrollListener {
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
+            if (mPreLoadMoreEnable && dy > 0) {
+                onPreOnLoadMore(recyclerView);
+            }
         }
 
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
-            if (isHaveFooterView && newState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (!mPreLoadMoreEnable && isHaveFooterView && newState == RecyclerView.SCROLL_STATE_IDLE) {
                 onLoadMore();
             }
+        }
+    }
+
+    private void onPreOnLoadMore(RecyclerView recyclerView) {
+        int lastVisiblePosition = mLinearLayoutManager.findLastVisibleItemPosition();
+        int loadPosition = mRecyclerView.getAdapter().getItemCount() - 1 - offset;
+        Log.d("onPreLoadMore", ">>>>>onScrolled: " + lastVisiblePosition + ",loadPosition: " + loadPosition);
+        PreLoadMoreInfo preLoadMoreInfo = (PreLoadMoreInfo) recyclerView.getTag(R.id.pre_load_more);
+        if (preLoadMoreInfo != null) {
+            if (preLoadMoreInfo.lastVisiblePosition == lastVisiblePosition
+                    || preLoadMoreInfo.lastVisiblePosition == loadPosition) {
+                return;
+            }
+        }
+        if (lastVisiblePosition >= loadPosition) {
+            if (isComplete) {
+                return;
+            }
+            if ((mRecyclerView.getAdapter().getItemCount() - 1) % pageSize == 0) {
+                isLoadMoreEnable = false;
+                mFooterView.onCompleteStyle();
+                return;
+            }
+            mFooterView.onLoadingStyle();
+            Log.d("onPreLoadMore", "have been onPreLoaded，lastVisiblePosition: " + lastVisiblePosition);
+            if (mMarsOnLoadListener != null) {
+                mMarsOnLoadListener.onLoadMore();
+            }
+            PreLoadMoreInfo info = new PreLoadMoreInfo();
+            info.lastVisiblePosition = lastVisiblePosition;
+            info.loadPosition = loadPosition;
+            recyclerView.setTag(R.id.pre_load_more, info);
         }
     }
 
