@@ -135,22 +135,24 @@ public class MarsRefreshView extends FrameLayout {
         return mRecyclerView;
     }
 
-    public void setLinearLayoutManager() {
+    public MarsRefreshView setLinearLayoutManager() {
         mLinearLayoutManager = new LinearLayoutManager(mContext);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
+        return this;
     }
 
     public LinearLayoutManager getLinearLayoutManager() {
         return mLinearLayoutManager;
     }
 
-    public void setAdapter(RecyclerView.Adapter adapter) {
+    public MarsRefreshView setAdapter(RecyclerView.Adapter adapter) {
         if (adapter != null) {
             mRecyclerViewAdapterDataObserver = new RecyclerViewAdapterDataObserver();
             mWrapperAdapter = new WrapperAdapter(adapter);
             mRecyclerView.setAdapter(mWrapperAdapter);
             adapter.registerAdapterDataObserver(mRecyclerViewAdapterDataObserver);
         }
+        return this;
     }
 
     /**
@@ -177,7 +179,7 @@ public class MarsRefreshView extends FrameLayout {
      *
      * @param v
      */
-    public void setEmptyView(View v) {
+    public MarsRefreshView setEmptyView(View v) {
         if (v == null) {
             throw new RuntimeException("EmptyView 为 Null");
         }
@@ -186,6 +188,7 @@ public class MarsRefreshView extends FrameLayout {
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(-1, -1);
         v.setLayoutParams(params);
         addView(v);
+        return this;
     }
 
     /**
@@ -210,8 +213,9 @@ public class MarsRefreshView extends FrameLayout {
     /**
      * 设置PageSize
      */
-    public void setPageSize(int pageSize) {
+    public MarsRefreshView setPageSize(int pageSize) {
         this.pageSize = pageSize;
+        return this;
     }
 
     /**
@@ -228,14 +232,16 @@ public class MarsRefreshView extends FrameLayout {
      *
      * @param colors
      */
-    public void setColorSchemeColors(@ColorInt int... colors) {
+    public MarsRefreshView setColorSchemeColors(@ColorInt int... colors) {
         mSwipeRefreshLayout.setColorSchemeColors(colors);
+        return this;
     }
 
     private MarsOnLoadListener mMarsOnLoadListener;
 
-    public void setMarsOnLoadListener(MarsOnLoadListener listener) {
+    public MarsRefreshView setMarsOnLoadListener(MarsOnLoadListener listener) {
         this.mMarsOnLoadListener = listener;
+        return this;
     }
 
     /**
@@ -259,8 +265,9 @@ public class MarsRefreshView extends FrameLayout {
 
     private View mHeaderView;
 
-    public void addHeaderView(View v) {
+    public MarsRefreshView addHeaderView(View v) {
         mHeaderView = v;
+        return this;
     }
 
     /**
@@ -268,8 +275,9 @@ public class MarsRefreshView extends FrameLayout {
      *
      * @param v
      */
-    public void setMarsOnLoadMoreView(MarsOnLoadMoreView v) {
+    public MarsRefreshView setMarsOnLoadMoreView(MarsOnLoadMoreView v) {
         mFooterView = v;
+        return this;
     }
 
     private boolean mPreLoadMoreEnable;
@@ -279,14 +287,23 @@ public class MarsRefreshView extends FrameLayout {
      */
     private int offset;
 
-    public void setPreLoadMoreEnable(boolean preLoadMoreEnable) {
+    public MarsRefreshView setPreLoadMoreEnable(boolean preLoadMoreEnable) {
         mPreLoadMoreEnable = preLoadMoreEnable;
         offset = 5;
+        return this;
     }
 
-    public void setPreLoadMoreEnable(int offset) {
+    public MarsRefreshView setPreLoadMoreEnable(int offset) {
         mPreLoadMoreEnable = true;
         this.offset = offset;
+        return this;
+    }
+
+    private boolean pageSizeEnable = true;
+
+    public MarsRefreshView setPageSizeEnable(boolean pageSizeEnable) {
+        this.pageSizeEnable = pageSizeEnable;
+        return this;
     }
 
     public static Handler mHandler = new Handler(Looper.getMainLooper());
@@ -341,7 +358,7 @@ public class MarsRefreshView extends FrameLayout {
         PreLoadMoreInfo preLoadMoreInfo = (PreLoadMoreInfo) recyclerView.getTag(R.id.pre_load_more);
         if (preLoadMoreInfo != null) {
             if (preLoadMoreInfo.lastVisiblePosition == lastVisiblePosition
-                    || preLoadMoreInfo.lastVisiblePosition == loadPosition) {
+                    || preLoadMoreInfo.loadPosition == loadPosition) {
                 return;
             }
         }
@@ -349,7 +366,7 @@ public class MarsRefreshView extends FrameLayout {
             if (isComplete) {
                 return;
             }
-            if ((mRecyclerView.getAdapter().getItemCount() - 1) % pageSize == 0) {
+            if (pageSizeEnable && (mRecyclerView.getAdapter().getItemCount() - 1) % pageSize == 0) {
                 isLoadMoreEnable = false;
                 mFooterView.onCompleteStyle();
                 return;
@@ -376,13 +393,16 @@ public class MarsRefreshView extends FrameLayout {
             if (isComplete) {
                 return;
             }
-            if (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) != 0
+            if (pageSizeEnable && lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) != 0
                     && (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0)) % pageSize == 0) {
                 isLoadMoreEnable = true;
                 mFooterView.onLoadingStyle();
-            } else {
+            } else if (pageSizeEnable) {
                 isLoadMoreEnable = false;
                 mFooterView.onCompleteStyle();
+            } else if (!pageSizeEnable) {
+                mFooterView.onLoadingStyle();
+                isLoadMoreEnable = true;
             }
             if (isLoadMoreEnable && mMarsOnLoadListener != null) {
                 mMarsOnLoadListener.onLoadMore();
