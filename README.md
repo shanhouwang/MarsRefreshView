@@ -20,64 +20,16 @@ compile ('com.devin:mars-refresh:0.0.3-alpha-5')
 
 ```
 mMarsRefreshView.setLinearLayoutManager()
-                .setAdapter(mAdapter)
-                .addHeaderView(v)
-                .setPreLoadMoreEnable(true)
-                .setPageSizeEnable(false)
-                .setMarsOnLoadListener(new MarsOnLoadListener() {
-                    @Override
-                    public void onRefresh() {
-                        data.clear();
-                        page = 1;
-                        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
-                            @Override
-                            public void onResponse(Object obj) {
-                                mAdapter.bindData(data);
-                                mMarsRefreshView.setRefreshing(false);
-                            }
-                        }).schedule(new ThreadUtils.TpRunnable() {
-                            @Override
-                            public Object execute() {
-                                for (int i = 0; i < 10; i++) {
-                                    data.add("onRefresh: " + i);
-                                }
-                                return null;
-                            }
-                        }, 1 * 1000, TimeUnit.MILLISECONDS);
-                    }
-
-                    @Override
-                    public void onLoadMore() {
-                        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).schedule(new ThreadUtils.TpRunnable() {
-                            @Override
-                            public Object execute() {
-                                page++;
-                                if (page <= 10) {
-                                    Log.d("MainActivity", ">>>>>onLoadMore, page: " + page);
-                                    for (int i = 0; i < 10; i++) {
-                                        data.add("onLoadMore: " + i + ", page: " + page);
-                                    }
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mAdapter.bindData(data);
-                                        }
-                                    });
-                                    if (page == 10) {
-                                        mHandler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mMarsRefreshView.onComplete();
-                                            }
-                                        });
-                                    }
-                                }
-                                return null;
-                            }
-                        }, 500, TimeUnit.MILLISECONDS);
-                    }
-                });
-        mMarsRefreshView.setRefreshing(true);
+    .setAdapter(mAdapter)
+    .addHeaderView(v) // 是否使用预加载
+    .setPreLoadMoreEnable(true) // 是否使用预加载
+    .setPageSizeEnable(false) // PageSize是否起作用
+    .setMarsOnLoadListener(new MarsOnLoadListener() {
+        @Override
+        public void onRefresh() {}
+        @Override
+        public void onLoadMore() {}
+});
 ```
 #### 2、自定义属性
 * namespace：xmlns:mars="http://schemas.android.com/apk/res-auto"
