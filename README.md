@@ -16,7 +16,7 @@ compile ('com.devin:mars-refresh:0.0.3-alpha-5')
     android:layout_height="match_parent"
     android:background="@color/colorPrimary" />
 ```
-实例代码
+示例代码
 
 ```
 mMarsRefreshView.setLinearLayoutManager()
