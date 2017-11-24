@@ -164,14 +164,22 @@ public class MarsRefreshView extends FrameLayout {
         if (!isSupportRefresh) {
             throw new RuntimeException("如果使用下拉刷新，请设置isSupportRefresh为true");
         }
+        if (mMarsOnLoadListener != null && mVenusOnLoadListener != null) {
+            throw new RuntimeException("请设置一个回调接口");
+        }
         mSwipeRefreshLayout.setRefreshing(refreshing);
-        if (refreshing && mMarsOnLoadListener != null) {
+        if (refreshing) {
             isComplete = false;
-            mMarsOnLoadListener.onRefresh();
             mRecyclerView.setTag(R.id.pre_load_more, null);
+            if (mMarsOnLoadListener != null) {
+                mMarsOnLoadListener.onRefresh();
+            }
+            if (mVenusOnLoadListener != null) {
+                indexPage = storeIndexPage;
+                mVenusOnLoadListener.onRefresh(storeIndexPage);
+            }
         }
     }
-
     private View mEmptyView;
 
     /**
@@ -244,6 +252,29 @@ public class MarsRefreshView extends FrameLayout {
         return this;
     }
 
+    private VenusOnLoadListener mVenusOnLoadListener;
+
+    /**
+     * 起始页码
+     */
+    private int indexPage;
+
+    /**
+     * 储存起始页码
+     */
+    private int storeIndexPage;
+
+    /**
+     * @param indexPage 起始页码
+     * @param v         回调
+     */
+    public MarsRefreshView setVenusOnLoadListener(int indexPage, VenusOnLoadListener v) {
+        this.indexPage = indexPage;
+        storeIndexPage = indexPage;
+        mVenusOnLoadListener = v;
+        return this;
+    }
+
     /**
      * 当发生错误时调用（网络/服务器宕机等）
      * <p>
@@ -253,6 +284,9 @@ public class MarsRefreshView extends FrameLayout {
         // 先这么解决
         mPreLoadMoreEnable = false;
         mFooterView.onErrorStyle();
+        if (mVenusOnLoadListener != null) {
+            indexPage--;
+        }
     }
 
     /**
@@ -376,6 +410,10 @@ public class MarsRefreshView extends FrameLayout {
             if (mMarsOnLoadListener != null) {
                 mMarsOnLoadListener.onLoadMore();
             }
+            if (mVenusOnLoadListener != null) {
+                indexPage++;
+                mVenusOnLoadListener.onLoadMore(indexPage);
+            }
             PreLoadMoreInfo info = new PreLoadMoreInfo();
             info.lastVisiblePosition = lastVisiblePosition;
             info.loadPosition = loadPosition;
@@ -406,6 +444,10 @@ public class MarsRefreshView extends FrameLayout {
             }
             if (isLoadMoreEnable && mMarsOnLoadListener != null) {
                 mMarsOnLoadListener.onLoadMore();
+            }
+            if (isLoadMoreEnable && mVenusOnLoadListener != null) {
+                indexPage++;
+                mVenusOnLoadListener.onLoadMore(indexPage);
             }
         }
     }

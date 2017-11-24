@@ -5,7 +5,7 @@
 repositories {
     jcenter()
 }
-compile ('com.devin:mars-refresh:0.0.3-alpha-5')
+compile ('com.devin:mars-refresh:0.0.3-alpha-7')
 ```
 ## 如何使用
 #### 1、XML布局
@@ -16,8 +16,7 @@ compile ('com.devin:mars-refresh:0.0.3-alpha-5')
     android:layout_height="match_parent"
     android:background="@color/colorPrimary" />
 ```
-示例代码
-
+#### 示例代码
 ```
 mMarsRefreshView.setLinearLayoutManager()
     .setAdapter(mAdapter)
@@ -34,6 +33,25 @@ mMarsRefreshView.setLinearLayoutManager()
 // 注意 setMarsOnLoadListener 在 setRefreshing(true)之上
 mMarsRefreshView.setRefreshing(true);
 ```
+或者
+
+```
+mMarsRefreshView.setLinearLayoutManager()
+    .setAdapter(mAdapter)
+    .addHeaderView(v)
+    .setPreLoadMoreEnable(true)
+    .setPageSizeEnable(false)
+    // 需要两个参数 起始页 和 回调 （我来帮你管理pageNum）
+    .setVenusOnLoadListener(1, new VenusOnLoadListener() {
+        @Override
+        public void onRefresh(final int indexPage) {}
+
+        @Override
+        public void onLoadMore(final int page) {}
+    }).setRefreshing(true);
+
+```
+
 #### 2、自定义属性
 * namespace：xmlns:mars="http://schemas.android.com/apk/res-auto"
 * 自定义属性 isHaveFooterView 类型 Boolean 是否添加加载更多footerView 默认添加

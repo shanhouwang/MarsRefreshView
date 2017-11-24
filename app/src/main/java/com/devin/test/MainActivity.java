@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.devin.refreshview.MarsOnLoadListener;
 import com.devin.refreshview.MarsRefreshView;
+import com.devin.refreshview.VenusOnLoadListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +50,9 @@ public class MainActivity extends AppCompatActivity {
                 .addHeaderView(v)
                 .setPreLoadMoreEnable(true)
                 .setPageSizeEnable(false)
-                .setMarsOnLoadListener(new MarsOnLoadListener() {
+                .setVenusOnLoadListener(1, new VenusOnLoadListener() {
                     @Override
-                    public void onRefresh() {
-                        data.clear();
-                        page = 1;
+                    public void onRefresh(final int indexPage) {
                         ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
                             @Override
                             public void onResponse(Object obj) {
@@ -63,8 +62,9 @@ public class MainActivity extends AppCompatActivity {
                         }).schedule(new ThreadUtils.TpRunnable() {
                             @Override
                             public Object execute() {
+                                data.clear();
                                 for (int i = 0; i < 10; i++) {
-                                    data.add("onRefresh: " + i);
+                                    data.add("onRefresh: " + i + ", page: " + indexPage);
                                 }
                                 return null;
                             }
@@ -72,11 +72,19 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onLoadMore() {
+                    public void onLoadMore(final int page) {
                         ThreadUtils.get(ThreadUtils.Type.SCHEDULED).schedule(new ThreadUtils.TpRunnable() {
                             @Override
                             public Object execute() {
-                                page++;
+                                if (page == 8) {
+                                    mHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mMarsRefreshView.onError();
+                                        }
+                                    });
+                                    return null;
+                                }
                                 if (page <= 10) {
                                     Log.d("MainActivity", ">>>>>onLoadMore, page: " + page);
                                     for (int i = 0; i < 10; i++) {
@@ -101,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }, 500, TimeUnit.MILLISECONDS);
                     }
-                });
-        mMarsRefreshView.setRefreshing(true);
+                }).setRefreshing(true);
     }
 }
