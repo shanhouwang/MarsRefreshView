@@ -21,15 +21,18 @@ compile ('com.devin:mars-refresh:0.0.3-alpha-5')
 ```
 mMarsRefreshView.setLinearLayoutManager()
     .setAdapter(mAdapter)
-    .addHeaderView(v) // 是否使用预加载
+    .addHeaderView(v)
     .setPreLoadMoreEnable(true) // 是否使用预加载
     .setPageSizeEnable(false) // PageSize是否起作用
+        ...
     .setMarsOnLoadListener(new MarsOnLoadListener() {
         @Override
         public void onRefresh() {}
         @Override
         public void onLoadMore() {}
 });
+// 注意 setMarsOnLoadListener 在 setRefreshing(true)之上
+mMarsRefreshView.setRefreshing(true);
 ```
 #### 2、自定义属性
 * namespace：xmlns:mars="http://schemas.android.com/apk/res-auto"
