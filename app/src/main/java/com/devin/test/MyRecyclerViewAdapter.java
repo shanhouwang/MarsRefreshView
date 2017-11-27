@@ -40,7 +40,25 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.tv.setText(data.get(position));
+        if (position == TYPE_NORMAL || position == 2) {
+            holder.tv.setText("正常");
+        } else {
+            holder.tv.setText("非正常");
+        }
+
+    }
+
+    public static final int TYPE_NORMAL = 0;
+
+    public static final int TYPE_AB_NORMAL = 1;
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == TYPE_NORMAL || position == 2) {
+            return TYPE_NORMAL;
+        } else {
+            return TYPE_AB_NORMAL;
+        }
     }
 
     @Override

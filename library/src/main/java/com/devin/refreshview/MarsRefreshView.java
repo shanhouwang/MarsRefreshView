@@ -493,7 +493,7 @@ public class MarsRefreshView extends FrameLayout {
             } else if (mFooterView != null && position == adapter.getItemCount() + (mHeaderView != null ? 1 : 0)) {
                 return TYPE_FOOTER;
             }
-            return super.getItemViewType(position);
+            return adapter.getItemViewType(position - (mHeaderView != null ? 1 : 0));
         }
 
         @Override
