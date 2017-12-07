@@ -431,14 +431,19 @@ public class MarsRefreshView extends FrameLayout {
             if (isComplete) {
                 return;
             }
-            if (pageSizeEnable && lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) != 0
-                    && (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0)) % pageSize == 0) {
-                isLoadMoreEnable = true;
-                mFooterView.onLoadingStyle();
-            } else if (pageSizeEnable) {
-                isLoadMoreEnable = false;
-                mFooterView.onCompleteStyle();
-            } else if (!pageSizeEnable) {
+            // 如果列表没有数据
+            if (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) == 0) {
+                return;
+            }
+            if (pageSizeEnable) {
+                if ((lastVisibleItemPosition - (mHeaderView != null ? 1 : 0)) % pageSize == 0) {
+                    isLoadMoreEnable = true;
+                    mFooterView.onLoadingStyle();
+                } else {
+                    isLoadMoreEnable = false;
+                    mFooterView.onCompleteStyle();
+                }
+            } else {
                 mFooterView.onLoadingStyle();
                 isLoadMoreEnable = true;
             }
