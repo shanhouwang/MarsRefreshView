@@ -7,11 +7,12 @@
 
     <ProgressBar
         android:id="@+id/pb_footer"
-        android:indeterminateTintMode="src_atop"
-        android:layout_marginRight="10dp"
-        android:layout_gravity="center_vertical"
         android:layout_width="20dp"
-        android:layout_height="20dp" />
+        android:layout_height="20dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="10dp"
+        android:indeterminateTintMode="src_atop"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tv_footer"
@@ -20,5 +21,5 @@
         android:layout_gravity="center_vertical"
         android:textColor="@color/_aaaaaa"
         android:textSize="13dp"
-        android:visibility="visible" />
+        android:visibility="gone" />
 </LinearLayout>
