@@ -7,8 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.devin.refreshview.MarsOnLoadListener;
@@ -41,6 +43,10 @@ public class MainActivity extends AppCompatActivity {
         View v = LayoutInflater.from(this).inflate(R.layout.layout_footer, null);
         v.setBackgroundColor(getResources().getColor(R.color._ffffff));
         ((TextView) (v.findViewById(R.id.tv_footer))).setText("HeaderView 1 ");
+        View empty = LayoutInflater.from(this).inflate(R.layout.layout_empty, null);
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, -1);
+        p.gravity = Gravity.CENTER;
+        empty.setLayoutParams(p);
         final RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, 200);
         v.setLayoutParams(params);
         v.setBackgroundColor(getResources().getColor(R.color._aaaaaa));
@@ -50,9 +56,11 @@ public class MainActivity extends AppCompatActivity {
                 .addHeaderView(v)
                 .setPreLoadMoreEnable(true)
                 .setPageSizeEnable(false)
+                .setEmptyView(empty, true)
                 .setVenusOnLoadListener(1, new VenusOnLoadListener() {
                     @Override
                     public void onRefresh(final int indexPage) {
+                        mMarsRefreshView.showEmptyView();
                         ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
                             @Override
                             public void onResponse(Object obj) {
@@ -68,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 return null;
                             }
-                        }, 1 * 1000, TimeUnit.MILLISECONDS);
+                        }, 5 * 1000, TimeUnit.MILLISECONDS);
                     }
 
                     @Override

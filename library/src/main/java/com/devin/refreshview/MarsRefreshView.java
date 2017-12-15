@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 /**
@@ -71,6 +72,7 @@ public class MarsRefreshView extends FrameLayout {
 
     private WrapperAdapter mWrapperAdapter;
     private RecyclerViewAdapterDataObserver mRecyclerViewAdapterDataObserver;
+    private RecyclerView.Adapter mAdapter;
 
     private void initView(Context context, AttributeSet attrs) {
         mContext = context;
@@ -147,6 +149,7 @@ public class MarsRefreshView extends FrameLayout {
 
     public MarsRefreshView setAdapter(RecyclerView.Adapter adapter) {
         if (adapter != null) {
+            mAdapter = adapter;
             mRecyclerViewAdapterDataObserver = new RecyclerViewAdapterDataObserver();
             mWrapperAdapter = new WrapperAdapter(adapter);
             mRecyclerView.setAdapter(mWrapperAdapter);
@@ -181,21 +184,36 @@ public class MarsRefreshView extends FrameLayout {
         }
     }
     private View mEmptyView;
+    private boolean showHeaderView;
+    private LinearLayout mHeaderAndEmptyViewContainer;
 
     /**
      * 设置数据为空的布局
      *
      * @param v
+     * @param showHeaderView
+     * @return
      */
-    public MarsRefreshView setEmptyView(View v) {
+    public MarsRefreshView setEmptyView(View v, boolean showHeaderView) {
         if (v == null) {
             throw new RuntimeException("EmptyView 为 Null");
         }
         mEmptyView = v;
-        v.setVisibility(View.GONE);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(-1, -1);
-        v.setLayoutParams(params);
-        addView(v);
+        this.showHeaderView = showHeaderView;
+        if (showHeaderView) {
+            mHeaderAndEmptyViewContainer = new LinearLayout(mContext);
+            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(-1, -2);
+            mHeaderAndEmptyViewContainer.setLayoutParams(params);
+            mHeaderAndEmptyViewContainer.setOrientation(LinearLayout.VERTICAL);
+            mHeaderAndEmptyViewContainer.addView(mHeaderView);
+            mHeaderAndEmptyViewContainer.addView(mEmptyView);
+            mEmptyView.setVisibility(View.GONE);
+        } else {
+            v.setVisibility(View.GONE);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(-1, -1);
+            v.setLayoutParams(params);
+            addView(v);
+        }
         return this;
     }
 
@@ -203,6 +221,11 @@ public class MarsRefreshView extends FrameLayout {
      * 显示空的布局
      */
     public void showEmptyView() {
+        if (showHeaderView) {
+            ViewGroup.LayoutParams params = mHeaderAndEmptyViewContainer.getLayoutParams();
+            params.height = -1;
+            mHeaderAndEmptyViewContainer.setLayoutParams(params);
+        }
         mEmptyView.setVisibility(View.VISIBLE);
     }
 
@@ -210,6 +233,11 @@ public class MarsRefreshView extends FrameLayout {
      * 隐藏空的布局
      */
     public void hideEmptyView() {
+        if (showHeaderView) {
+            ViewGroup.LayoutParams params = mHeaderAndEmptyViewContainer.getLayoutParams();
+            params.height = -2;
+            mHeaderAndEmptyViewContainer.setLayoutParams(params);
+        }
         mEmptyView.setVisibility(View.GONE);
     }
 
@@ -351,6 +379,7 @@ public class MarsRefreshView extends FrameLayout {
         @Override
         public void onChanged() {
             super.onChanged();
+            Log.d("onChanged", ">>>>>mAdapter getItemCount: " + mAdapter.getItemCount());
             mWrapperAdapter.notifyDataSetChanged();
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -358,6 +387,11 @@ public class MarsRefreshView extends FrameLayout {
                     onLoadMore();
                 }
             }, 100);
+            if (mAdapter.getItemCount() == 0) {
+                showEmptyView();
+            } else {
+                hideEmptyView();
+            }
         }
     }
 
@@ -473,9 +507,9 @@ public class MarsRefreshView extends FrameLayout {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Log.d("WrapperAdapter", ">>>>>onCreateViewHolder: " + viewType);
             if (viewType == TYPE_HEADER) {
-                return new HeaderViewHolder(mHeaderView);
+                return new ViewHolder(showHeaderView ? mHeaderAndEmptyViewContainer : mHeaderView);
             } else if (viewType == TYPE_FOOTER) {
-                return new FooterViewHolder(mFooterView);
+                return new ViewHolder(mFooterView);
             }
             return adapter.onCreateViewHolder(parent, viewType);
         }
@@ -498,30 +532,23 @@ public class MarsRefreshView extends FrameLayout {
             } else if (mFooterView != null && position == adapter.getItemCount() + (mHeaderView != null ? 1 : 0)) {
                 return TYPE_FOOTER;
             }
-            return adapter.getItemViewType(position - (mHeaderView != null ? 1 : 0));
+            return adapter.getItemViewType(mHeaderView != null ? position - 1 : position);
         }
 
         @Override
         public int getItemCount() {
-            int count;
-            if (mHeaderView == null && mFooterView == null) {
-                count = adapter.getItemCount();
-            } else if (mHeaderView != null && mFooterView != null) {
-                count = adapter.getItemCount() + 2;
-            } else {
+            int count = adapter.getItemCount();
+            if (mHeaderView != null) {
+                count = adapter.getItemCount() + 1;
+            }
+            if (mFooterView != null) {
                 count = adapter.getItemCount() + 1;
             }
             return count;
         }
 
-        public class HeaderViewHolder extends RecyclerView.ViewHolder {
-            public HeaderViewHolder(View itemView) {
-                super(itemView);
-            }
-        }
-
-        public class FooterViewHolder extends RecyclerView.ViewHolder {
-            public FooterViewHolder(View itemView) {
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            public ViewHolder(View itemView) {
                 super(itemView);
             }
         }
