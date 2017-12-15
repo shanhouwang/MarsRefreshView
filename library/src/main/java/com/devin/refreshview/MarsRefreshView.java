@@ -244,7 +244,9 @@ public class MarsRefreshView extends FrameLayout {
             }
             mHeaderAndEmptyViewContainer.setLayoutParams(params);
         }
-        mEmptyView.setVisibility(View.VISIBLE);
+        if (mEmptyView != null && mEmptyView.getVisibility() == View.GONE) {
+            mEmptyView.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -256,7 +258,9 @@ public class MarsRefreshView extends FrameLayout {
             params.height = -2;
             mHeaderAndEmptyViewContainer.setLayoutParams(params);
         }
-        mEmptyView.setVisibility(View.GONE);
+        if (mEmptyView != null && mEmptyView.getVisibility() == View.VISIBLE) {
+            mEmptyView.setVisibility(View.GONE);
+        }
     }
 
     /**
