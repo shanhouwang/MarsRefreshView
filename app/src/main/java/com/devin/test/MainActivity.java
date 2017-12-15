@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private MarsRefreshView mMarsRefreshView;
     private MyRecyclerViewAdapter mAdapter;
 
-    List<String> data = new ArrayList<>();
+    volatile List<String> data = new ArrayList<>();
 
     private int page;
 
@@ -40,27 +41,20 @@ public class MainActivity extends AppCompatActivity {
         mMarsRefreshView = findViewById(R.id.marsRefreshView);
         mAdapter = new MyRecyclerViewAdapter(this);
 
-        View v = LayoutInflater.from(this).inflate(R.layout.layout_footer, null);
-        v.setBackgroundColor(getResources().getColor(R.color._ffffff));
-        ((TextView) (v.findViewById(R.id.tv_footer))).setText("HeaderView 1 ");
+        View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, null);
+        headerView.setBackgroundColor(getResources().getColor(R.color._ffffff));
         View empty = LayoutInflater.from(this).inflate(R.layout.layout_empty, null);
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, -1);
-        p.gravity = Gravity.CENTER;
-        empty.setLayoutParams(p);
-        final RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(-1, 200);
-        v.setLayoutParams(params);
-        v.setBackgroundColor(getResources().getColor(R.color._aaaaaa));
+        headerView.setBackgroundColor(getResources().getColor(R.color._aaaaaa));
 
         mMarsRefreshView.setLinearLayoutManager()
                 .setAdapter(mAdapter)
-                .addHeaderView(v)
+                .addHeaderView(headerView)
                 .setPreLoadMoreEnable(true)
                 .setPageSizeEnable(false)
                 .setEmptyView(empty, true)
                 .setVenusOnLoadListener(1, new VenusOnLoadListener() {
                     @Override
                     public void onRefresh(final int indexPage) {
-                        mMarsRefreshView.showEmptyView();
                         ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
                             @Override
                             public void onResponse(Object obj) {
@@ -77,6 +71,20 @@ public class MainActivity extends AppCompatActivity {
                                 return null;
                             }
                         }, 5 * 1000, TimeUnit.MILLISECONDS);
+
+                        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
+                            @Override
+                            public void onResponse(Object obj) {
+                                mAdapter.bindData(data);
+                                mMarsRefreshView.showEmptyView(-2);
+                            }
+                        }).schedule(new ThreadUtils.TpRunnable() {
+                            @Override
+                            public Object execute() {
+                                data.clear();
+                                return null;
+                            }
+                        }, 10 * 1000, TimeUnit.MILLISECONDS);
                     }
 
                     @Override

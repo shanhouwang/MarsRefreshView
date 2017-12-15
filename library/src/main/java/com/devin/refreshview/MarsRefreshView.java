@@ -184,23 +184,23 @@ public class MarsRefreshView extends FrameLayout {
         }
     }
     private View mEmptyView;
-    private boolean showHeaderView;
+    private boolean isEmptyViewCoverHeaderView;
     private LinearLayout mHeaderAndEmptyViewContainer;
 
     /**
      * 设置数据为空的布局
      *
      * @param v
-     * @param showHeaderView
+     * @param isEmptyViewCoverHeaderView
      * @return
      */
-    public MarsRefreshView setEmptyView(View v, boolean showHeaderView) {
+    public MarsRefreshView setEmptyView(View v, boolean isEmptyViewCoverHeaderView) {
         if (v == null) {
             throw new RuntimeException("EmptyView 为 Null");
         }
         mEmptyView = v;
-        this.showHeaderView = showHeaderView;
-        if (showHeaderView) {
+        this.isEmptyViewCoverHeaderView = isEmptyViewCoverHeaderView;
+        if (isEmptyViewCoverHeaderView) {
             mHeaderAndEmptyViewContainer = new LinearLayout(mContext);
             ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(-1, -2);
             mHeaderAndEmptyViewContainer.setLayoutParams(params);
@@ -221,9 +221,27 @@ public class MarsRefreshView extends FrameLayout {
      * 显示空的布局
      */
     public void showEmptyView() {
-        if (showHeaderView) {
+        showEmptyView(-1);
+    }
+
+    private int heightMode = -1;
+
+    /**
+     * 显示空的布局
+     *
+     * @param heightMode -1 LayoutParams.MATCH_PARENT
+     *             -2 LayoutParams.WRAP_CONTENT
+     *             可赋值dp
+     */
+    public void showEmptyView(int heightMode) {
+        this.heightMode = heightMode;
+        if (isEmptyViewCoverHeaderView) {
             ViewGroup.LayoutParams params = mHeaderAndEmptyViewContainer.getLayoutParams();
-            params.height = -1;
+            if (heightMode < 0) {
+                params.height = heightMode;
+            } else {
+                params.height = MeasureUtils.dp2px(mContext, heightMode);
+            }
             mHeaderAndEmptyViewContainer.setLayoutParams(params);
         }
         mEmptyView.setVisibility(View.VISIBLE);
@@ -233,7 +251,7 @@ public class MarsRefreshView extends FrameLayout {
      * 隐藏空的布局
      */
     public void hideEmptyView() {
-        if (showHeaderView) {
+        if (isEmptyViewCoverHeaderView) {
             ViewGroup.LayoutParams params = mHeaderAndEmptyViewContainer.getLayoutParams();
             params.height = -2;
             mHeaderAndEmptyViewContainer.setLayoutParams(params);
@@ -388,7 +406,7 @@ public class MarsRefreshView extends FrameLayout {
                 }
             }, 100);
             if (mAdapter.getItemCount() == 0) {
-                showEmptyView();
+                showEmptyView(heightMode);
             } else {
                 hideEmptyView();
             }
@@ -507,7 +525,7 @@ public class MarsRefreshView extends FrameLayout {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Log.d("WrapperAdapter", ">>>>>onCreateViewHolder: " + viewType);
             if (viewType == TYPE_HEADER) {
-                return new ViewHolder(showHeaderView ? mHeaderAndEmptyViewContainer : mHeaderView);
+                return new ViewHolder(isEmptyViewCoverHeaderView ? mHeaderAndEmptyViewContainer : mHeaderView);
             } else if (viewType == TYPE_FOOTER) {
                 return new ViewHolder(mFooterView);
             }
