@@ -561,10 +561,10 @@ public class MarsRefreshView extends FrameLayout {
         public int getItemCount() {
             int count = adapter.getItemCount();
             if (mHeaderView != null) {
-                count = adapter.getItemCount() + 1;
+                count++;
             }
             if (mFooterView != null) {
-                count = adapter.getItemCount() + 1;
+                count++;
             }
             return count;
         }
