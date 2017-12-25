@@ -489,7 +489,10 @@ public class MarsRefreshView extends FrameLayout {
             }
             // 如果列表没有数据
             if (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) == 0) {
+                mFooterView.setVisibility(View.GONE);
                 return;
+            } else {
+                mFooterView.setVisibility(View.VISIBLE);
             }
             if (pageSizeEnable) {
                 if ((lastVisibleItemPosition - (mHeaderView != null ? 1 : 0)) % pageSize == 0) {
