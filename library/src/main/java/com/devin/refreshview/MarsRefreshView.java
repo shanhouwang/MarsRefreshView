@@ -184,23 +184,23 @@ public class MarsRefreshView extends FrameLayout {
         }
     }
     private View mEmptyView;
-    private boolean isEmptyViewCoverHeaderView;
+    private boolean isShowHeaderView;
     private LinearLayout mHeaderAndEmptyViewContainer;
 
     /**
      * 设置数据为空的布局
      *
      * @param v
-     * @param isEmptyViewCoverHeaderView
+     * @param isShowHeaderView
      * @return
      */
-    public MarsRefreshView setEmptyView(View v, boolean isEmptyViewCoverHeaderView) {
+    public MarsRefreshView setEmptyView(View v, boolean isShowHeaderView) {
         if (v == null) {
             throw new RuntimeException("EmptyView 为 Null");
         }
         mEmptyView = v;
-        this.isEmptyViewCoverHeaderView = isEmptyViewCoverHeaderView;
-        if (isEmptyViewCoverHeaderView) {
+        this.isShowHeaderView = isShowHeaderView;
+        if (isShowHeaderView) {
             mHeaderAndEmptyViewContainer = new LinearLayout(mContext);
             ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(-1, -2);
             mHeaderAndEmptyViewContainer.setLayoutParams(params);
@@ -235,7 +235,7 @@ public class MarsRefreshView extends FrameLayout {
      */
     public void showEmptyView(int heightMode) {
         this.heightMode = heightMode;
-        if (isEmptyViewCoverHeaderView) {
+        if (isShowHeaderView) {
             ViewGroup.LayoutParams params = mHeaderAndEmptyViewContainer.getLayoutParams();
             if (heightMode < 0) {
                 params.height = heightMode;
@@ -253,7 +253,7 @@ public class MarsRefreshView extends FrameLayout {
      * 隐藏空的布局
      */
     public void hideEmptyView() {
-        if (isEmptyViewCoverHeaderView) {
+        if (isShowHeaderView) {
             ViewGroup.LayoutParams params = mHeaderAndEmptyViewContainer.getLayoutParams();
             params.height = -2;
             mHeaderAndEmptyViewContainer.setLayoutParams(params);
@@ -532,7 +532,7 @@ public class MarsRefreshView extends FrameLayout {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             Log.d("WrapperAdapter", ">>>>>onCreateViewHolder: " + viewType);
             if (viewType == TYPE_HEADER) {
-                return new ViewHolder(isEmptyViewCoverHeaderView ? mHeaderAndEmptyViewContainer : mHeaderView);
+                return new ViewHolder(isShowHeaderView ? mHeaderAndEmptyViewContainer : mHeaderView);
             } else if (viewType == TYPE_FOOTER) {
                 return new ViewHolder(mFooterView);
             }
