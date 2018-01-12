@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.devin.refreshview.MarsOnLoadListener;
 import com.devin.refreshview.MarsRefreshView;
+import com.devin.refreshview.MercuryOnLoadMoreListener;
 import com.devin.refreshview.VenusOnLoadListener;
 
 import java.util.ArrayList;
@@ -49,44 +50,9 @@ public class MainActivity extends AppCompatActivity {
         mMarsRefreshView.setLinearLayoutManager()
                 .setAdapter(mAdapter)
                 .addHeaderView(headerView)
-                .setPreLoadMoreEnable(true)
                 .setPageSizeEnable(false)
                 .setEmptyView(empty, true)
-                .setVenusOnLoadListener(1, new VenusOnLoadListener() {
-                    @Override
-                    public void onRefresh(final int indexPage) {
-                        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
-                            @Override
-                            public void onResponse(Object obj) {
-                                mAdapter.bindData(data);
-                                mMarsRefreshView.setRefreshing(false);
-                            }
-                        }).schedule(new ThreadUtils.TpRunnable() {
-                            @Override
-                            public Object execute() {
-                                data.clear();
-                                for (int i = 0; i < 10; i++) {
-                                    data.add("onRefresh: " + i + ", page: " + indexPage);
-                                }
-                                return null;
-                            }
-                        }, 5 * 1000, TimeUnit.MILLISECONDS);
-
-                        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
-                            @Override
-                            public void onResponse(Object obj) {
-                                mAdapter.bindData(data);
-                                mMarsRefreshView.showEmptyView(-2);
-                            }
-                        }).schedule(new ThreadUtils.TpRunnable() {
-                            @Override
-                            public Object execute() {
-                                data.clear();
-                                return null;
-                            }
-                        }, 10 * 1000, TimeUnit.MILLISECONDS);
-                    }
-
+                .setMercuryOnLoadMoreListener(1, new MercuryOnLoadMoreListener() {
                     @Override
                     public void onLoadMore(final int page) {
                         ThreadUtils.get(ThreadUtils.Type.SCHEDULED).schedule(new ThreadUtils.TpRunnable() {
@@ -125,6 +91,36 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }, 500, TimeUnit.MILLISECONDS);
                     }
-                }).setRefreshing(true);
+                });
+
+        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
+            @Override
+            public void onResponse(Object obj) {
+                mAdapter.bindData(data);
+            }
+        }).schedule(new ThreadUtils.TpRunnable() {
+            @Override
+            public Object execute() {
+                data.clear();
+                for (int i = 0; i < 10; i++) {
+                    data.add("onRefresh: " + i + ", page: " + 1);
+                }
+                return null;
+            }
+        }, 5 * 1000, TimeUnit.MILLISECONDS);
+
+        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
+            @Override
+            public void onResponse(Object obj) {
+                mAdapter.bindData(data);
+                mMarsRefreshView.showEmptyView(-1);
+            }
+        }).schedule(new ThreadUtils.TpRunnable() {
+            @Override
+            public Object execute() {
+                data.clear();
+                return null;
+            }
+        }, 10 * 1000, TimeUnit.MILLISECONDS);
     }
 }

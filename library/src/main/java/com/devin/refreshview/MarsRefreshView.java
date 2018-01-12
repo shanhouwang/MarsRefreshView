@@ -120,12 +120,12 @@ public class MarsRefreshView extends FrameLayout {
                         setRefreshing(true);
                     }
                 });
-                mRecyclerView.addOnScrollListener(new MarsOnScrollListener());
             } else {
                 FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(-1, -1);
                 mRecyclerView.setLayoutParams(params);
                 addView(mRecyclerView);
             }
+            mRecyclerView.addOnScrollListener(new MarsOnScrollListener());
         }
     }
 
@@ -325,6 +325,15 @@ public class MarsRefreshView extends FrameLayout {
         return this;
     }
 
+    private MercuryOnLoadMoreListener mMercuryOnLoadMoreListener;
+
+    public MarsRefreshView setMercuryOnLoadMoreListener(int indexPage, MercuryOnLoadMoreListener m) {
+        this.indexPage = indexPage;
+        storeIndexPage = indexPage;
+        mMercuryOnLoadMoreListener = m;
+        return this;
+    }
+
     /**
      * 当发生错误时调用（网络/服务器宕机等）
      * <p>
@@ -470,6 +479,10 @@ public class MarsRefreshView extends FrameLayout {
                 indexPage++;
                 mVenusOnLoadListener.onLoadMore(indexPage);
             }
+            if (mMercuryOnLoadMoreListener != null) {
+                indexPage++;
+                mMercuryOnLoadMoreListener.onLoadMore(indexPage);
+            }
             PreLoadMoreInfo info = new PreLoadMoreInfo();
             info.lastVisiblePosition = lastVisiblePosition;
             info.loadPosition = loadPosition;
@@ -512,6 +525,10 @@ public class MarsRefreshView extends FrameLayout {
             if (isLoadMoreEnable && mVenusOnLoadListener != null) {
                 indexPage++;
                 mVenusOnLoadListener.onLoadMore(indexPage);
+            }
+            if (isLoadMoreEnable && mMercuryOnLoadMoreListener != null) {
+                indexPage++;
+                mMercuryOnLoadMoreListener.onLoadMore(indexPage);
             }
         }
     }

@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         mars:isListView="false"
-        mars:isSupportRefresh="true"
+        mars:isSupportRefresh="false"
         mars:onLoadingText="加载中..." />
 
 </LinearLayout>
