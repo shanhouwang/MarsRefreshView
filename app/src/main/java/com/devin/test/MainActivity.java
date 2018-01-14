@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MarsRefreshView mMarsRefreshView;
     private MyRecyclerViewAdapter mAdapter;
+    private MyListViewAdapter mMyListViewAdapter;
 
     volatile List<String> data = new ArrayList<>();
 
@@ -41,13 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
         mMarsRefreshView = findViewById(R.id.marsRefreshView);
         mAdapter = new MyRecyclerViewAdapter(this);
+        mMyListViewAdapter = new MyListViewAdapter(this);
 
         View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, null);
         headerView.setBackgroundColor(getResources().getColor(R.color._ffffff));
         View empty = LayoutInflater.from(this).inflate(R.layout.layout_empty, null);
         headerView.setBackgroundColor(getResources().getColor(R.color._aaaaaa));
 
-        mMarsRefreshView.setLinearLayoutManager()
+        mMarsRefreshView
+                .setLinearLayoutManager()
                 .setAdapter(mAdapter)
                 .addHeaderView(headerView)
                 .setPageSizeEnable(false)
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                                     mHandler.post(new Runnable() {
                                         @Override
                                         public void run() {
+                                            mMyListViewAdapter.bindData(data);
                                             mAdapter.bindData(data);
                                         }
                                     });
@@ -97,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Object obj) {
                 mAdapter.bindData(data);
+                mMyListViewAdapter.bindData(data);
             }
         }).schedule(new ThreadUtils.TpRunnable() {
             @Override
@@ -113,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Object obj) {
                 mAdapter.bindData(data);
+                mMyListViewAdapter.bindData(data);
                 mMarsRefreshView.showEmptyView(-1);
             }
         }).schedule(new ThreadUtils.TpRunnable() {

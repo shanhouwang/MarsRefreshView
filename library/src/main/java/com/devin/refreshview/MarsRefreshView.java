@@ -2,6 +2,7 @@ package com.devin.refreshview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.database.DataSetObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.ColorInt;
@@ -14,6 +15,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -45,7 +48,7 @@ public class MarsRefreshView extends FrameLayout {
     /**
      * 是否用ListView
      */
-    private boolean isHaveListView;
+    private boolean isListView;
 
     /**
      * 是否支持下拉刷新
@@ -78,7 +81,7 @@ public class MarsRefreshView extends FrameLayout {
         mContext = context;
         if (attrs != null) {
             TypedArray attrsArray = context.obtainStyledAttributes(attrs, R.styleable.mars);
-            isHaveListView = attrsArray.getBoolean(R.styleable.mars_isListView, false);
+            isListView = attrsArray.getBoolean(R.styleable.mars_isListView, false);
             isSupportRefresh = attrsArray.getBoolean(R.styleable.mars_isSupportRefresh, true);
             isHaveFooterView = attrsArray.getBoolean(R.styleable.mars_isHaveFooterView, true);
             if (isHaveFooterView) {
@@ -87,7 +90,7 @@ public class MarsRefreshView extends FrameLayout {
             }
         } else {
             isSupportRefresh = true;
-            isHaveListView = false;
+            isListView = false;
             isHaveFooterView = true;
             mFooterView = new MarsNormalFooterView(mContext);
         }
@@ -97,8 +100,10 @@ public class MarsRefreshView extends FrameLayout {
             mSwipeRefreshLayout.setLayoutParams(srfParams);
             addView(mSwipeRefreshLayout);
         }
-        if (isHaveListView) {
+        if (isListView) {
             mListView = new ListView(context);
+            mListView.setDivider(null);
+            mListView.setDividerHeight(0);
             if (isSupportRefresh) {
                 SwipeRefreshLayout.LayoutParams lvParams = new SwipeRefreshLayout.LayoutParams(-1, -1);
                 mListView.setLayoutParams(lvParams);
@@ -108,6 +113,10 @@ public class MarsRefreshView extends FrameLayout {
                 mListView.setLayoutParams(params);
                 addView(mListView);
             }
+            AbsListView.LayoutParams params = new AbsListView.LayoutParams(-1, -2);
+            mFooterView.setLayoutParams(params);
+            mListView.addFooterView(mFooterView);
+            mListView.setOnScrollListener(new ListViewOnScrollListener());
         } else {
             mRecyclerView = new RecyclerView(context);
             if (isSupportRefresh) {
@@ -147,6 +156,12 @@ public class MarsRefreshView extends FrameLayout {
         return mLinearLayoutManager;
     }
 
+    /**
+     * 设置RecyclerView适配器
+     *
+     * @param adapter
+     * @return
+     */
     public MarsRefreshView setAdapter(RecyclerView.Adapter adapter) {
         if (adapter != null) {
             mAdapter = adapter;
@@ -156,6 +171,40 @@ public class MarsRefreshView extends FrameLayout {
             adapter.registerAdapterDataObserver(mRecyclerViewAdapterDataObserver);
         }
         return this;
+    }
+
+    private BaseAdapter mListViewAdapter;
+
+    /**
+     * 设置ListView适配器
+     *
+     * @param adapter
+     * @return
+     */
+    public MarsRefreshView setAdapter(BaseAdapter adapter) {
+        mListViewAdapter = adapter;
+        mListView.setAdapter(mListViewAdapter);
+        adapter.registerDataSetObserver(new ListViewDataSetObserver());
+        return this;
+    }
+
+    class ListViewDataSetObserver extends DataSetObserver {
+        @Override
+        public void onChanged() {
+            super.onChanged();
+            Log.d("onChanged", ">>>>>mListViewAdapter getItemCount: " + mListViewAdapter.getCount());
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    onListViewLoadMore();
+                }
+            }, 100);
+            if (mListViewAdapter.getCount() == 0) {
+                showEmptyView(heightMode);
+            } else {
+                hideEmptyView();
+            }
+        }
     }
 
     /**
@@ -183,6 +232,7 @@ public class MarsRefreshView extends FrameLayout {
             }
         }
     }
+
     private View mEmptyView;
     private boolean isShowHeaderView;
     private LinearLayout mHeaderAndEmptyViewContainer;
@@ -201,10 +251,8 @@ public class MarsRefreshView extends FrameLayout {
         mEmptyView = v;
         this.isShowHeaderView = isShowHeaderView;
         if (isShowHeaderView) {
-            mHeaderAndEmptyViewContainer = new LinearLayout(mContext);
-            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(-1, -2);
-            mHeaderAndEmptyViewContainer.setLayoutParams(params);
-            mHeaderAndEmptyViewContainer.setOrientation(LinearLayout.VERTICAL);
+            createLayout();
+            mHeaderAndEmptyViewContainer.removeAllViews();
             mHeaderAndEmptyViewContainer.addView(mHeaderView);
             mHeaderAndEmptyViewContainer.addView(mEmptyView);
             mEmptyView.setVisibility(View.GONE);
@@ -215,6 +263,16 @@ public class MarsRefreshView extends FrameLayout {
             addView(v);
         }
         return this;
+    }
+
+    private LinearLayout createLayout() {
+        if (mHeaderAndEmptyViewContainer == null) {
+            mHeaderAndEmptyViewContainer = new LinearLayout(mContext);
+            ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(-1, -2);
+            mHeaderAndEmptyViewContainer.setLayoutParams(params);
+            mHeaderAndEmptyViewContainer.setOrientation(LinearLayout.VERTICAL);
+        }
+        return mHeaderAndEmptyViewContainer;
     }
 
     /**
@@ -230,8 +288,8 @@ public class MarsRefreshView extends FrameLayout {
      * 显示空的布局
      *
      * @param heightMode -1 LayoutParams.MATCH_PARENT
-     *             -2 LayoutParams.WRAP_CONTENT
-     *             可赋值dp
+     *                   -2 LayoutParams.WRAP_CONTENT
+     *                   可赋值dp
      */
     public void showEmptyView(int heightMode) {
         this.heightMode = heightMode;
@@ -360,6 +418,10 @@ public class MarsRefreshView extends FrameLayout {
 
     public MarsRefreshView addHeaderView(View v) {
         mHeaderView = v;
+        if (isListView) {
+            createLayout().addView(mHeaderView);
+            mListView.addHeaderView(mHeaderAndEmptyViewContainer);
+        }
         return this;
     }
 
@@ -403,7 +465,7 @@ public class MarsRefreshView extends FrameLayout {
 
     /**
      * 当数据发生改变的时候
-     *
+     * <p>
      * 调用onChanged方法
      */
     class RecyclerViewAdapterDataObserver extends RecyclerView.AdapterDataObserver {
@@ -429,6 +491,60 @@ public class MarsRefreshView extends FrameLayout {
     private class PreLoadMoreInfo {
         int loadPosition;
         int lastVisiblePosition;
+    }
+
+    private class ListViewOnScrollListener implements AbsListView.OnScrollListener {
+
+        @Override
+        public void onScrollStateChanged(AbsListView absListView, int i) {
+            if (!mPreLoadMoreEnable && i == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
+                onListViewLoadMore();
+            }
+        }
+
+        @Override
+        public void onScroll(AbsListView absListView, int i, int i1, int i2) {
+        }
+    }
+
+    private void onListViewLoadMore() {
+        int lastVisibleItemPosition = mListView.getLastVisiblePosition();
+        Log.d("onLoadMore", ">>>>>lastVisibleItemPosition: " + lastVisibleItemPosition);
+        if (lastVisibleItemPosition == mListView.getAdapter().getCount() - 1) {
+            if (isComplete) {
+                return;
+            }
+            // 如果列表没有数据
+            if (lastVisibleItemPosition - mListView.getHeaderViewsCount() == 0) {
+                mFooterView.setVisibility(View.GONE);
+                return;
+            } else {
+                mFooterView.setVisibility(View.VISIBLE);
+            }
+            if (pageSizeEnable) {
+                if ((lastVisibleItemPosition - mListView.getHeaderViewsCount()) % pageSize == 0) {
+                    isLoadMoreEnable = true;
+                    mFooterView.onLoadingStyle();
+                } else {
+                    isLoadMoreEnable = false;
+                    mFooterView.onCompleteStyle();
+                }
+            } else {
+                mFooterView.onLoadingStyle();
+                isLoadMoreEnable = true;
+            }
+            if (isLoadMoreEnable && mMarsOnLoadListener != null) {
+                mMarsOnLoadListener.onLoadMore();
+            }
+            if (isLoadMoreEnable && mVenusOnLoadListener != null) {
+                indexPage++;
+                mVenusOnLoadListener.onLoadMore(indexPage);
+            }
+            if (isLoadMoreEnable && mMercuryOnLoadMoreListener != null) {
+                indexPage++;
+                mMercuryOnLoadMoreListener.onLoadMore(indexPage);
+            }
+        }
     }
 
     private class MarsOnScrollListener extends RecyclerView.OnScrollListener {
@@ -541,7 +657,7 @@ public class MarsRefreshView extends FrameLayout {
 
         private RecyclerView.Adapter<RecyclerView.ViewHolder> adapter;
 
-        public WrapperAdapter(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter){
+        public WrapperAdapter(RecyclerView.Adapter<RecyclerView.ViewHolder> adapter) {
             this.adapter = adapter;
         }
 
