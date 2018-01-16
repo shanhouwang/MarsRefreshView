@@ -250,7 +250,10 @@ public class MarsRefreshView extends FrameLayout {
         }
         mEmptyView = v;
         this.isShowHeaderView = isShowHeaderView;
-        if (isShowHeaderView) {
+        if (null == mHeaderView) {
+            this.isShowHeaderView = false;
+        }
+        if (this.isShowHeaderView) {
             createLayout();
             mHeaderAndEmptyViewContainer.removeAllViews();
             mHeaderAndEmptyViewContainer.addView(mHeaderView);
@@ -485,6 +488,36 @@ public class MarsRefreshView extends FrameLayout {
             } else {
                 hideEmptyView();
             }
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount) {
+            Log.d("onChanged", ">>>>>onItemRangeChanged<<<<<");
+            mWrapperAdapter.notifyItemRangeChanged(positionStart + (mHeaderView != null ? 1 : 0), itemCount);
+        }
+
+        @Override
+        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+            Log.d("onChanged", ">>>>>onItemRangeChanged<<<<<");
+            mWrapperAdapter.notifyItemRangeChanged(positionStart + (mHeaderView != null ? 1 : 0), itemCount, payload);
+        }
+
+        @Override
+        public void onItemRangeInserted(int positionStart, int itemCount) {
+            Log.d("onChanged", ">>>>>onItemRangeInserted<<<<<");
+            mWrapperAdapter.notifyItemRangeInserted(positionStart + (mHeaderView != null ? 1 : 0), itemCount);
+        }
+
+        @Override
+        public void onItemRangeRemoved(int positionStart, int itemCount) {
+            Log.d("onChanged", ">>>>>onItemRangeRemoved<<<<<");
+            mWrapperAdapter.notifyItemRangeRemoved(positionStart + (mHeaderView != null ? 1 : 0), itemCount);
+        }
+
+        @Override
+        public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            Log.d("onChanged", ">>>>>onItemRangeMoved<<<<<");
+            mWrapperAdapter.notifyItemMoved(fromPosition + (mHeaderView != null ? 1 : 0), toPosition + (mHeaderView != null ? 1 : 0));
         }
     }
 
