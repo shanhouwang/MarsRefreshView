@@ -169,6 +169,7 @@ public class MarsRefreshView extends FrameLayout {
             mWrapperAdapter = new WrapperAdapter(adapter);
             mRecyclerView.setAdapter(mWrapperAdapter);
             adapter.registerAdapterDataObserver(mRecyclerViewAdapterDataObserver);
+            isComplete = false;
         }
         return this;
     }
