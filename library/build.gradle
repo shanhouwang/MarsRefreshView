@@ -22,6 +22,10 @@ android {
         enabled true
     }
 
+    lintOptions {
+        abortOnError false
+    }
+
 }
 
 dependencies {
@@ -41,7 +45,7 @@ publish {
     userOrg = 'shanhouwang'
     groupId = 'com.devin'
     artifactId = 'mars-refresh'
-    publishVersion = '0.0.5-beta'
+    publishVersion = '0.0.5-beta-2'
     desc = 'A Android Refresh And LoadMore Library'
     website = 'https://github.com/shanhouwang/MarsRefreshView'
 }

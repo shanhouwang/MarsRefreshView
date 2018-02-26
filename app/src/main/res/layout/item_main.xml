@@ -8,9 +8,10 @@
 
     <TextView
         android:id="@+id/tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:text="哈哈哈哈哈"
+        android:gravity="center"
         android:textColor="#333333"
         android:textSize="18dp" />
 

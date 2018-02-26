@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return null;
             }
-        }, 5 * 1000, TimeUnit.MILLISECONDS);
+        }, 0, TimeUnit.MILLISECONDS);
 
         ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
             @Override

@@ -39,26 +39,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        if (position == TYPE_NORMAL || position == 2) {
-            holder.tv.setText("正常");
-        } else {
-            holder.tv.setText("非正常");
-        }
-
-    }
-
-    public static final int TYPE_NORMAL = 0;
-
-    public static final int TYPE_AB_NORMAL = 1;
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position == TYPE_NORMAL || position == 2) {
-            return TYPE_NORMAL;
-        } else {
-            return TYPE_AB_NORMAL;
-        }
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        holder.tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                data.set(position, "点击了");
+                notifyItemChanged(position);
+            }
+        });
+        holder.tv.setText(data.get(position) + "");
     }
 
     @Override
