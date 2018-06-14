@@ -53,47 +53,16 @@ public class MainActivity extends AppCompatActivity {
                 .setLinearLayoutManager()
                 .setAdapter(mAdapter)
                 .addHeaderView(headerView)
-                .setPageSizeEnable(false)
+                .setPreLoadMoreEnable(true)
                 .setEmptyView(empty, true)
                 .setMercuryOnLoadMoreListener(1, new MercuryOnLoadMoreListener() {
                     @Override
                     public void onLoadMore(final int page) {
-                        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).schedule(new ThreadUtils.TpRunnable() {
-                            @Override
-                            public Object execute() {
-                                if (page == 8) {
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mMarsRefreshView.onError();
-                                        }
-                                    });
-                                    return null;
-                                }
-                                if (page <= 10) {
-                                    Log.d("MainActivity", ">>>>>onLoadMore, page: " + page);
-                                    for (int i = 0; i < 10; i++) {
-                                        data.add("onLoadMore: " + i + ", page: " + page);
-                                    }
-                                    mHandler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mMyListViewAdapter.bindData(data);
-                                            mAdapter.bindData(data);
-                                        }
-                                    });
-                                    if (page == 10) {
-                                        mHandler.post(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                mMarsRefreshView.onComplete();
-                                            }
-                                        });
-                                    }
-                                }
-                                return null;
-                            }
-                        }, 500, TimeUnit.MILLISECONDS);
+                        Log.d("MainActivity", ">>>>>page<<<<<" + page);
+                        for (int i = 0; i < 10; i++) {
+                            data.add("onRefresh: " + i + ", page: " + 1);
+                        }
+                        mAdapter.bindData(data);
                     }
                 });
 
@@ -113,20 +82,5 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
         }, 0, TimeUnit.MILLISECONDS);
-
-        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
-            @Override
-            public void onResponse(Object obj) {
-                mAdapter.bindData(data);
-                mMyListViewAdapter.bindData(data);
-                mMarsRefreshView.showEmptyView(-1);
-            }
-        }).schedule(new ThreadUtils.TpRunnable() {
-            @Override
-            public Object execute() {
-                data.clear();
-                return null;
-            }
-        }, 10 * 1000, TimeUnit.MILLISECONDS);
     }
 }

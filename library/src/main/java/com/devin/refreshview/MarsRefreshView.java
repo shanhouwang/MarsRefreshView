@@ -602,7 +602,7 @@ public class MarsRefreshView extends FrameLayout {
 
     private void onPreOnLoadMore(RecyclerView recyclerView) {
         int lastVisiblePosition = mLinearLayoutManager.findLastVisibleItemPosition();
-        int loadPosition = mRecyclerView.getAdapter().getItemCount() - 1 - offset;
+        int loadPosition = mRecyclerView.getAdapter().getItemCount() - offset - 1 - (mHeaderView == null ? 0 : 1);
         Log.d("onPreLoadMore", ">>>>>onScrolled: " + lastVisiblePosition + ",loadPosition: " + loadPosition);
         PreLoadMoreInfo preLoadMoreInfo = (PreLoadMoreInfo) recyclerView.getTag(R.id.pre_load_more);
         if (preLoadMoreInfo != null) {
@@ -615,21 +615,26 @@ public class MarsRefreshView extends FrameLayout {
             if (isComplete) {
                 return;
             }
-            if (pageSizeEnable && (mRecyclerView.getAdapter().getItemCount() - 1) % pageSize == 0) {
-                isLoadMoreEnable = false;
-                mFooterView.onCompleteStyle();
-                return;
+            if (pageSizeEnable) {
+                if ((mRecyclerView.getAdapter().getItemCount() - 1 - (mHeaderView == null ? 0 : 1)) % pageSize == 0) {
+                    isLoadMoreEnable = true;
+                    mFooterView.onLoadingStyle();
+                } else {
+                    isLoadMoreEnable = false;
+                    mFooterView.onCompleteStyle();
+                }
+            } else {
+                mFooterView.onLoadingStyle();
+                isLoadMoreEnable = true;
             }
-            mFooterView.onLoadingStyle();
-            Log.d("onPreLoadMore", "have been onPreLoaded，lastVisiblePosition: " + lastVisiblePosition);
-            if (mMarsOnLoadListener != null) {
+            if (isLoadMoreEnable && mMarsOnLoadListener != null) {
                 mMarsOnLoadListener.onLoadMore();
             }
-            if (mVenusOnLoadListener != null) {
+            if (isLoadMoreEnable && mVenusOnLoadListener != null) {
                 indexPage++;
                 mVenusOnLoadListener.onLoadMore(indexPage);
             }
-            if (mMercuryOnLoadMoreListener != null) {
+            if (isLoadMoreEnable && mMercuryOnLoadMoreListener != null) {
                 indexPage++;
                 mMercuryOnLoadMoreListener.onLoadMore(indexPage);
             }
@@ -637,6 +642,7 @@ public class MarsRefreshView extends FrameLayout {
             info.lastVisiblePosition = lastVisiblePosition;
             info.loadPosition = loadPosition;
             recyclerView.setTag(R.id.pre_load_more, info);
+            Log.d("onPreLoadMore", "have been onPreLoaded，lastVisiblePosition: " + lastVisiblePosition);
         }
     }
 
