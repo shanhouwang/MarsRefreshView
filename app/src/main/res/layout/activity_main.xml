@@ -12,8 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
+        mars:isHaveFooterView="false"
         mars:isListView="false"
-        mars:isSupportRefresh="false"
         mars:onLoadingText="加载中..." />
 
 </LinearLayout>

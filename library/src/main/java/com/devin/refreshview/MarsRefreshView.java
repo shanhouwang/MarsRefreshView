@@ -113,9 +113,11 @@ public class MarsRefreshView extends FrameLayout {
                 mListView.setLayoutParams(params);
                 addView(mListView);
             }
-            AbsListView.LayoutParams params = new AbsListView.LayoutParams(-1, -2);
-            mFooterView.setLayoutParams(params);
-            mListView.addFooterView(mFooterView);
+            if (isHaveFooterView) {
+                AbsListView.LayoutParams params = new AbsListView.LayoutParams(-1, -2);
+                mFooterView.setLayoutParams(params);
+                mListView.addFooterView(mFooterView);
+            }
             mListView.setOnScrollListener(new ListViewOnScrollListener());
         } else {
             mRecyclerView = new RecyclerView(context);
@@ -404,10 +406,8 @@ public class MarsRefreshView extends FrameLayout {
     public void onError() {
         // 先这么解决
         mPreLoadMoreEnable = false;
-        mFooterView.onErrorStyle();
-        if (mVenusOnLoadListener != null) {
-            indexPage--;
-        }
+        if (mFooterView != null) mFooterView.onErrorStyle();
+        if (mVenusOnLoadListener != null) indexPage--;
     }
 
     /**
@@ -415,13 +415,16 @@ public class MarsRefreshView extends FrameLayout {
      */
     public void onComplete() {
         isComplete = true;
-        mFooterView.onCompleteStyle();
+        if (mFooterView != null) mFooterView.onCompleteStyle();
     }
 
     private View mHeaderView;
 
     public MarsRefreshView addHeaderView(View v) {
         mHeaderView = v;
+        if (mHeaderView.getLayoutParams() == null) {
+            mHeaderView.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
+        }
         if (isListView) {
             createLayout().addView(mHeaderView);
             mListView.addHeaderView(mHeaderAndEmptyViewContainer);
@@ -550,21 +553,21 @@ public class MarsRefreshView extends FrameLayout {
             }
             // 如果列表没有数据
             if (lastVisibleItemPosition - mListView.getHeaderViewsCount() == 0) {
-                mFooterView.setVisibility(View.GONE);
+                if (mFooterView != null) mFooterView.setVisibility(View.GONE);
                 return;
             } else {
-                mFooterView.setVisibility(View.VISIBLE);
+                if (mFooterView != null) mFooterView.setVisibility(View.VISIBLE);
             }
             if (pageSizeEnable) {
                 if ((lastVisibleItemPosition - mListView.getHeaderViewsCount()) % pageSize == 0) {
                     isLoadMoreEnable = true;
-                    mFooterView.onLoadingStyle();
+                    if (mFooterView != null) mFooterView.onLoadingStyle();
                 } else {
                     isLoadMoreEnable = false;
-                    mFooterView.onCompleteStyle();
+                    if (mFooterView != null) mFooterView.onCompleteStyle();
                 }
             } else {
-                mFooterView.onLoadingStyle();
+                if (mFooterView != null) mFooterView.onLoadingStyle();
                 isLoadMoreEnable = true;
             }
             if (isLoadMoreEnable && mMarsOnLoadListener != null) {
@@ -618,13 +621,13 @@ public class MarsRefreshView extends FrameLayout {
             if (pageSizeEnable) {
                 if ((mRecyclerView.getAdapter().getItemCount() - 1 - (mHeaderView == null ? 0 : 1)) % pageSize == 0) {
                     isLoadMoreEnable = true;
-                    mFooterView.onLoadingStyle();
+                    if (mFooterView != null) mFooterView.onLoadingStyle();
                 } else {
                     isLoadMoreEnable = false;
-                    mFooterView.onCompleteStyle();
+                    if (mFooterView != null) mFooterView.onCompleteStyle();
                 }
             } else {
-                mFooterView.onLoadingStyle();
+                if (mFooterView != null) mFooterView.onLoadingStyle();
                 isLoadMoreEnable = true;
             }
             if (isLoadMoreEnable && mMarsOnLoadListener != null) {
@@ -658,21 +661,21 @@ public class MarsRefreshView extends FrameLayout {
             }
             // 如果列表没有数据
             if (lastVisibleItemPosition - (mHeaderView != null ? 1 : 0) == 0) {
-                mFooterView.setVisibility(View.GONE);
+                if (mFooterView != null) mFooterView.setVisibility(View.GONE);
                 return;
             } else {
-                mFooterView.setVisibility(View.VISIBLE);
+                if (mFooterView != null) mFooterView.setVisibility(View.VISIBLE);
             }
             if (pageSizeEnable) {
                 if ((lastVisibleItemPosition - (mHeaderView != null ? 1 : 0)) % pageSize == 0) {
                     isLoadMoreEnable = true;
-                    mFooterView.onLoadingStyle();
+                    if (mFooterView != null) mFooterView.onLoadingStyle();
                 } else {
                     isLoadMoreEnable = false;
-                    mFooterView.onCompleteStyle();
+                    if (mFooterView != null) mFooterView.onCompleteStyle();
                 }
             } else {
-                mFooterView.onLoadingStyle();
+                if (mFooterView != null) mFooterView.onLoadingStyle();
                 isLoadMoreEnable = true;
             }
             if (isLoadMoreEnable && mMarsOnLoadListener != null) {
