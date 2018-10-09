@@ -404,7 +404,7 @@ public class MarsRefreshView extends FrameLayout {
      * onLoadMore里要 page--
      */
     public void onError() {
-        // 先这么解决
+        if (null != mSwipeRefreshLayout) mSwipeRefreshLayout.setRefreshing(false);
         mPreLoadMoreEnable = false;
         if (mFooterView != null) mFooterView.onErrorStyle();
         if (mVenusOnLoadListener != null) indexPage--;
@@ -414,6 +414,7 @@ public class MarsRefreshView extends FrameLayout {
      * 当加载结束时
      */
     public void onComplete() {
+        if (null != mSwipeRefreshLayout) mSwipeRefreshLayout.setRefreshing(false);
         isComplete = true;
         if (mFooterView != null) mFooterView.onCompleteStyle();
     }
