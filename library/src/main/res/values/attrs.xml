@@ -3,6 +3,8 @@
         <attr name="isListView" format="boolean" />
         <attr name="footerTextVisible" format="boolean" />
         <attr name="footerTextColor" format="color" />
+        <attr name="footerTopMargin" format="integer" />
+        <attr name="footerBottomMargin" format="integer" />
         <attr name="onLoadingText" format="string" />
         <attr name="onLoadingErrorText" format="string" />
         <attr name="onLoadingCompleteText" format="string" />

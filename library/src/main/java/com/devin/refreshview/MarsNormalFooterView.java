@@ -57,6 +57,9 @@ public class MarsNormalFooterView extends MarsOnLoadMoreView {
         boolean footerTextVisible = attrsArray.getBoolean(R.styleable.mars_footerTextVisible, true);
         tvFooter.setTextSize(footerTxtSize);
         tvFooter.setTextColor(footerColor);
+        int topMargin = MeasureUtils.dp2px(getContext(), attrsArray.getInteger(R.styleable.mars_footerTopMargin, 15));
+        int bottomMargin = MeasureUtils.dp2px(getContext(), attrsArray.getInteger(R.styleable.mars_footerBottomMargin, 15));
+        tvFooter.setPadding(0, topMargin, 0, bottomMargin);
         if (footerTextVisible) {
             tvFooter.setVisibility(View.VISIBLE);
         } else {
@@ -65,7 +68,7 @@ public class MarsNormalFooterView extends MarsOnLoadMoreView {
     }
 
     private void initView(Context context) {
-        LayoutParams params = new LayoutParams(-1, dp2px(48));
+        LayoutParams params = new LayoutParams(-1, -2);
         setLayoutParams(params);
         setBackgroundColor(getResources().getColor(R.color._00000000));
         View v = LayoutInflater.from(context).inflate(R.layout.layout_footer, null);

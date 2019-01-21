@@ -13,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -120,7 +121,7 @@ public class MarsRefreshView extends FrameLayout {
             }
             mListView.setOnScrollListener(new ListViewOnScrollListener());
         } else {
-            mRecyclerView = new RecyclerView(context);
+            mRecyclerView = (RecyclerView) LayoutInflater.from(getContext()).inflate(R.layout.layout_recycler_view, null);
             if (isSupportRefresh) {
                 SwipeRefreshLayout.LayoutParams lvParams = new SwipeRefreshLayout.LayoutParams(-1, -1);
                 mRecyclerView.setLayoutParams(lvParams);
