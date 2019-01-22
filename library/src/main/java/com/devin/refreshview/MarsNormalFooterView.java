@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.text.TextUtils;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -96,15 +94,5 @@ public class MarsNormalFooterView extends MarsOnLoadMoreView {
     public void onErrorStyle() {
         tvFooter.setText(onLoadingErrorText);
         pbFooter.setVisibility(View.GONE);
-    }
-
-    /**
-     * dp转px
-     *
-     * @param dp dp值
-     * @return px值
-     */
-    public int dp2px(float dp) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, mContext.getResources().getDisplayMetrics());
     }
 }
