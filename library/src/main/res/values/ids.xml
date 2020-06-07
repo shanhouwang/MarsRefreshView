@@ -1,3 +1,4 @@
 <resources>
     <item name="pre_load_more" type="id" />
+    <item name="layout_tip_views_container" type="id" />
 </resources>
