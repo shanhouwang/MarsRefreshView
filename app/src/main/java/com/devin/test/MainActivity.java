@@ -1,23 +1,15 @@
 package com.devin.test;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.MainThread;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.devin.refreshview.MarsOnLoadListener;
 import com.devin.refreshview.MarsRefreshView;
-import com.devin.refreshview.MercuryOnLoadMoreListener;
-import com.devin.refreshview.VenusOnLoadListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +38,10 @@ public class MainActivity extends AppCompatActivity {
 
         View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, null);
         headerView.setBackgroundColor(getResources().getColor(R.color._ffffff));
-        View empty = LayoutInflater.from(this).inflate(R.layout.layout_empty, null);
+        View empty = LayoutInflater.from(this).inflate(R.layout.layout_tip_view, mMarsRefreshView, false);
+        ((TextView) empty.findViewById(R.id.tipMsg)).setText("数据为空");
+        View errorView = LayoutInflater.from(this).inflate(R.layout.layout_tip_view, mMarsRefreshView, false);
+        ((TextView) errorView.findViewById(R.id.tipMsg)).setText("网络异常，请重新再试");
         headerView.setBackgroundColor(getResources().getColor(R.color._aaaaaa));
 
         mMarsRefreshView
@@ -55,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
                 .addHeaderView(headerView)
                 .setPreLoadMoreEnable(true)
                 .setEmptyView(empty, true)
+                .setErrorView(errorView, true, true)
                 .setMarsOnLoadListener(new MarsOnLoadListener() {
                     @Override
                     public void onRefresh() {
@@ -96,7 +92,9 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }, 0, TimeUnit.MILLISECONDS);
                     }
-                });
-        mMarsRefreshView.setRefreshing(true);
+                }).build();
+        // mMarsRefreshView.setRefreshing(true);
+        // mMarsRefreshView.showEmptyView();
+        mMarsRefreshView.onError();
     }
 }
