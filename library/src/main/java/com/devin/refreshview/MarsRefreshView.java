@@ -167,11 +167,6 @@ public class MarsRefreshView extends FrameLayout {
     public MarsRefreshView setAdapter(RecyclerView.Adapter adapter) {
         if (adapter != null) {
             mAdapter = adapter;
-            mRecyclerViewAdapterDataObserver = new RecyclerViewAdapterDataObserver();
-            mWrapperAdapter = new WrapperAdapter(adapter);
-            mRecyclerView.setAdapter(mWrapperAdapter);
-            adapter.registerAdapterDataObserver(mRecyclerViewAdapterDataObserver);
-            isComplete = false;
         }
         return this;
     }
@@ -278,7 +273,7 @@ public class MarsRefreshView extends FrameLayout {
         return this;
     }
 
-    private LinearLayout createLayout() {
+    private LinearLayout initHeaderAndOtherTipViewsContainer() {
         if (mHeaderAndOtherTipViewsContainer == null) {
             mHeaderAndOtherTipViewsContainer = new LinearLayout(mContext);
             ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(-1, -2);
@@ -482,7 +477,7 @@ public class MarsRefreshView extends FrameLayout {
     }
 
     public void build() {
-        createLayout();
+        initHeaderAndOtherTipViewsContainer();
         if (null != this.mHeaderView) {
             if (this.mHeaderView.getLayoutParams() == null) {
                 this.mHeaderView.setLayoutParams(new ViewGroup.LayoutParams(-1, -2));
@@ -492,41 +487,47 @@ public class MarsRefreshView extends FrameLayout {
             }
             this.mHeaderAndOtherTipViewsContainer.addView(mHeaderView);
         }
-        if (null == this.mErrorView && null == this.mEmptyView) {
-            return;
-        }
-        addTipViewsLayout();
-        if (null != this.mEmptyView) {
-            if (this.headerViewVisibleByEmptyView && null != this.mHeaderView) {
-                this.mOtherTipViewsContainer.addView(this.mEmptyView);
-            } else {
-                LayoutParams params = new LayoutParams(-1, -1);
-                this.mEmptyView.setLayoutParams(params);
-                addView(this.mEmptyView);
+        if (null != this.mErrorView || null != this.mEmptyView) {
+            initTipViewsLayout();
+            if (null != this.mEmptyView) {
+                if (this.headerViewVisibleByEmptyView && null != this.mHeaderView) {
+                    this.mOtherTipViewsContainer.addView(this.mEmptyView);
+                } else {
+                    LayoutParams params = new LayoutParams(-1, -1);
+                    this.mEmptyView.setLayoutParams(params);
+                    addView(this.mEmptyView);
+                }
             }
-        }
-        if (null != this.mErrorView) {
-            if (this.headerViewVisibleByErrorView && null != this.mHeaderView) {
-                this.mOtherTipViewsContainer.addView(this.mErrorView);
-            } else {
-                LayoutParams params = new LayoutParams(-1, -1);
-                this.mErrorView.setLayoutParams(params);
-                addView(this.mErrorView);
-            }
-            if (this.mInterceptClickEventByErrorView) {
-                this.mErrorView.setOnClickListener(new OnClickListener() {
+            if (null != this.mErrorView) {
+                if (this.headerViewVisibleByErrorView && null != this.mHeaderView) {
+                    this.mOtherTipViewsContainer.addView(this.mErrorView);
+                } else {
+                    LayoutParams params = new LayoutParams(-1, -1);
+                    this.mErrorView.setLayoutParams(params);
+                    addView(this.mErrorView);
+                }
+                if (this.mInterceptClickEventByErrorView) {
+                    this.mErrorView.setOnClickListener(new OnClickListener() {
 
-                    @Override
-                    public void onClick(View v) {
-                        setRefreshing(true);
-                    }
-                });
+                        @Override
+                        public void onClick(View v) {
+                            setRefreshing(true);
+                        }
+                    });
+                }
+                hideErrorView();
             }
-            hideErrorView();
         }
+
+        // Adapter 相关
+        mRecyclerViewAdapterDataObserver = new RecyclerViewAdapterDataObserver();
+        mWrapperAdapter = new WrapperAdapter(this.mAdapter);
+        mRecyclerView.setAdapter(mWrapperAdapter);
+        this.mAdapter.registerAdapterDataObserver(mRecyclerViewAdapterDataObserver);
+        isComplete = false;
     }
 
-    private FrameLayout addTipViewsLayout() {
+    private FrameLayout initTipViewsLayout() {
         if (null != this.mOtherTipViewsContainer) {
             return this.mOtherTipViewsContainer;
         }

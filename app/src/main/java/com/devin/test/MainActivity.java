@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new MyRecyclerViewAdapter(this);
         mMyListViewAdapter = new MyListViewAdapter(this);
 
-        View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, null);
+        View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, mMarsRefreshView, false);
         headerView.setBackgroundColor(getResources().getColor(R.color._ffffff));
         View empty = LayoutInflater.from(this).inflate(R.layout.layout_tip_view, mMarsRefreshView, false);
         ((TextView) empty.findViewById(R.id.tipMsg)).setText("数据为空");
@@ -46,11 +46,11 @@ public class MainActivity extends AppCompatActivity {
 
         mMarsRefreshView
                 .setLinearLayoutManager()
-                .setAdapter(mAdapter)
                 .addHeaderView(headerView)
                 .setPreLoadMoreEnable(true)
                 .setEmptyView(empty, true)
                 .setErrorView(errorView, true, true)
+                .setAdapter(mAdapter)
                 .setMarsOnLoadListener(new MarsOnLoadListener() {
                     @Override
                     public void onRefresh() {
