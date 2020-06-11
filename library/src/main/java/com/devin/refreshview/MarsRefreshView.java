@@ -434,6 +434,16 @@ public class MarsRefreshView extends FrameLayout {
         return this;
     }
 
+    public void showHeaderView() {
+        mHeaderView.setVisibility(View.VISIBLE);
+        mAdapter.notifyItemChanged(0);
+    }
+
+    public void hideHeaderView() {
+        mHeaderView.setVisibility(View.GONE);
+        mAdapter.notifyItemChanged(0);
+    }
+
     /**
      * 设置自己的加载更多View
      *
@@ -730,7 +740,7 @@ public class MarsRefreshView extends FrameLayout {
         @Override
         public int getItemViewType(int position) {
             Log.d("WrapperAdapter", ">>>>>getItemViewType: " + position);
-            if (mHeaderView != null && position == 0) {
+            if (mHeaderView != null && position == 0 && mHeaderView.VISIBLE == View.VISIBLE) {
                 return TYPE_HEADER;
             } else if (mFooterView != null && position == adapter.getItemCount() + (mHeaderView != null ? 1 : 0)) {
                 return TYPE_FOOTER;

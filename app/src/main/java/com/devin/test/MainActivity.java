@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new MyRecyclerViewAdapter(this);
         mMyListViewAdapter = new MyListViewAdapter(this);
 
-        View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, null);
+        final View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, null);
         headerView.setBackgroundColor(getResources().getColor(R.color._ffffff));
         View empty = LayoutInflater.from(this).inflate(R.layout.layout_empty, null);
         headerView.setBackgroundColor(getResources().getColor(R.color._aaaaaa));
@@ -98,5 +98,19 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         mMarsRefreshView.setRefreshing(true);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mMarsRefreshView.hideHeaderView();
+            }
+        }, 3 * 1000);
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mMarsRefreshView.showHeaderView();
+            }
+        }, 6 * 1000);
+
     }
 }
