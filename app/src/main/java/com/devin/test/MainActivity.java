@@ -44,17 +44,17 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new MyRecyclerViewAdapter(this);
         mMyListViewAdapter = new MyListViewAdapter(this);
 
-        final View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, null);
+        final View headerView = LayoutInflater.from(this).inflate(R.layout.layout_header, mMarsRefreshView, false);
         headerView.setBackgroundColor(getResources().getColor(R.color._ffffff));
-        View empty = LayoutInflater.from(this).inflate(R.layout.layout_empty, null);
+        View empty = LayoutInflater.from(this).inflate(R.layout.layout_empty, mMarsRefreshView, false);
         headerView.setBackgroundColor(getResources().getColor(R.color._aaaaaa));
 
         mMarsRefreshView
                 .setLinearLayoutManager()
-                .setAdapter(mAdapter)
                 .addHeaderView(headerView)
                 .setPreLoadMoreEnable(true)
-                .setEmptyView(empty, true)
+                .setEmptyView(empty)
+                .setAdapter(mAdapter)
                 .setMarsOnLoadListener(new MarsOnLoadListener() {
                     @Override
                     public void onRefresh() {
@@ -79,38 +79,37 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onLoadMore() {
-                        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
-                            @Override
-                            public void onResponse(Object obj) {
-                                mAdapter.bindData(data);
-                                mMyListViewAdapter.bindData(data);
-                            }
-                        }).schedule(new ThreadUtils.TpRunnable() {
-                            @Override
-                            public Object execute() {
-                                data.clear();
-                                for (int i = 0; i < 10; i++) {
-                                    data.add("onRefresh: " + i + ", page: " + 1);
-                                }
-                                return null;
-                            }
-                        }, 0, TimeUnit.MILLISECONDS);
                     }
                 });
         mMarsRefreshView.setRefreshing(true);
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mMarsRefreshView.hideHeaderView();
+                mMarsRefreshView.setHeaderViewStatus(false);
             }
         }, 3 * 1000);
 
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                mMarsRefreshView.showHeaderView();
+                mMarsRefreshView.setHeaderViewStatus(false);
             }
         }, 6 * 1000);
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mMarsRefreshView.setHeaderViewStatus(true);
+                mMarsRefreshView.hideEmptyView();
+            }
+        }, 9 * 1000);
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mMarsRefreshView.setHeaderViewStatus(true);
+            }
+        }, 12 * 1000);
 
     }
 }
