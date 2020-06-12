@@ -617,7 +617,7 @@ public class MarsRefreshView extends FrameLayout {
 
     private void onPreOnLoadMore(RecyclerView recyclerView) {
         int lastVisiblePosition = mLinearLayoutManager.findLastVisibleItemPosition();
-        int loadPosition = mRecyclerView.getAdapter().getItemCount() - offset - 1 - (headerViewNotNullAndVisible() ? 1 : 0);
+        int loadPosition = mRecyclerView.getAdapter().getItemCount() - offset - (isHaveFooterView ? 1 : 0) - (headerViewNotNullAndVisible() ? 1 : 0);
         Log.d("onPreLoadMore", ">>>>>onScrolled: " + lastVisiblePosition + ",loadPosition: " + loadPosition);
         PreLoadMoreInfo preLoadMoreInfo = (PreLoadMoreInfo) recyclerView.getTag(R.id.pre_load_more);
         if (preLoadMoreInfo != null) {
@@ -631,7 +631,7 @@ public class MarsRefreshView extends FrameLayout {
                 return;
             }
             if (pageSizeEnable) {
-                if ((mRecyclerView.getAdapter().getItemCount() - 1 - (headerViewNotNullAndVisible() ? 1 : 0)) % pageSize == 0) {
+                if ((mRecyclerView.getAdapter().getItemCount() - (isHaveFooterView ? 1 : 0) - (headerViewNotNullAndVisible() ? 1 : 0)) % pageSize == 0) {
                     isLoadMoreEnable = true;
                     if (mFooterView != null) mFooterView.onLoadingStyle();
                 } else {
