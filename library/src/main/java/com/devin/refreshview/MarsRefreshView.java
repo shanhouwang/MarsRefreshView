@@ -441,7 +441,7 @@ public class MarsRefreshView extends FrameLayout {
 
     public void setHeaderViewStatus(boolean visible) {
         mHeaderView.setVisibility(visible ? View.VISIBLE : View.GONE);
-        mAdapter.notifyItemChanged(0);
+        mAdapter.notifyDataSetChanged();
     }
 
     /**

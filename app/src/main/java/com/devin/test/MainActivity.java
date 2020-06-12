@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         mMarsRefreshView
                 .setLinearLayoutManager()
                 .addHeaderView(headerView)
+                .setPageSizeEnable(true)
                 .setPreLoadMoreEnable(true)
                 .setEmptyView(empty)
                 .setAdapter(mAdapter)
@@ -79,37 +80,23 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onLoadMore() {
+                        ThreadUtils.get(ThreadUtils.Type.SCHEDULED).callBack(new ThreadUtils.TpCallBack() {
+                            @Override
+                            public void onResponse(Object obj) {
+                                mAdapter.bindData(data);
+                                mMyListViewAdapter.bindData(data);
+                            }
+                        }).schedule(new ThreadUtils.TpRunnable() {
+                            @Override
+                            public Object execute() {
+                                for (int i = 0; i < 10; i++) {
+                                    data.add("onLoadMore: " + i + ", page: " + 1);
+                                }
+                                return null;
+                            }
+                        }, 1 * 1000, TimeUnit.MILLISECONDS);
                     }
                 });
         mMarsRefreshView.setRefreshing(true);
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mMarsRefreshView.setHeaderViewStatus(false);
-            }
-        }, 3 * 1000);
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mMarsRefreshView.setHeaderViewStatus(false);
-            }
-        }, 6 * 1000);
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mMarsRefreshView.setHeaderViewStatus(true);
-                mMarsRefreshView.hideEmptyView();
-            }
-        }, 9 * 1000);
-
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mMarsRefreshView.setHeaderViewStatus(true);
-            }
-        }, 12 * 1000);
-
     }
 }

@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         mars:footerBottomMargin="60"
-        mars:isHaveFooterView="true"
+        mars:isHaveFooterView="false"
         mars:isListView="false"
         mars:onLoadingText="加载中..." />
 
