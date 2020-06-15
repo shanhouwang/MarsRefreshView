@@ -482,6 +482,8 @@ public class MarsRefreshView extends FrameLayout {
 
     public static Handler mHandler = new Handler(Looper.getMainLooper());
 
+    public int currentItemCount;
+
     /**
      * 当数据发生改变的时候
      * <p>
@@ -491,7 +493,12 @@ public class MarsRefreshView extends FrameLayout {
         @Override
         public void onChanged() {
             super.onChanged();
-            Log.d("onChanged", ">>>>>mAdapter getItemCount: " + mAdapter.getItemCount());
+            // 判定用户刷新了第一页数据
+            if (currentItemCount >= pageSize && mAdapter.getItemCount() == pageSize) {
+                isComplete = false;
+            }
+            currentItemCount = mAdapter.getItemCount();
+            Log.d("onChanged", ">>>>>mAdapter getItemCount: " + currentItemCount + ", " + Thread.currentThread().getName());
             mWrapperAdapter.notifyDataSetChanged();
             mHandler.postDelayed(new Runnable() {
                 @Override
