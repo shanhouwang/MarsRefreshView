@@ -29,6 +29,8 @@ import android.widget.ListView;
  */
 public class MarsRefreshView extends FrameLayout {
 
+    public static final String TAG = MarsRefreshView.class.getSimpleName();
+
     public MarsRefreshView(@NonNull Context context) {
         super(context);
         initView(context, null);
@@ -196,7 +198,7 @@ public class MarsRefreshView extends FrameLayout {
         @Override
         public void onChanged() {
             super.onChanged();
-            Log.d("onChanged", ">>>>>mListViewAdapter getItemCount: " + mListViewAdapter.getCount());
+            Log.d(TAG, ">>>>>mListViewAdapter getItemCount: " + mListViewAdapter.getCount());
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -225,13 +227,11 @@ public class MarsRefreshView extends FrameLayout {
         }
         mSwipeRefreshLayout.setRefreshing(refreshing);
         if (refreshing) {
-            isComplete = false;
-            mRecyclerView.setTag(R.id.pre_load_more, null);
+            resetComplete();
             if (mMarsOnLoadListener != null) {
                 mMarsOnLoadListener.onRefresh();
             }
             if (mVenusOnLoadListener != null) {
-                indexPage = storeIndexPage;
                 mVenusOnLoadListener.onRefresh(storeIndexPage);
             }
         }
@@ -495,10 +495,10 @@ public class MarsRefreshView extends FrameLayout {
             super.onChanged();
             // 判定用户刷新了第一页数据
             if (currentItemCount >= pageSize && mAdapter.getItemCount() == pageSize) {
-                isComplete = false;
+                resetComplete();
             }
             currentItemCount = mAdapter.getItemCount();
-            Log.d("onChanged", ">>>>>mAdapter getItemCount: " + currentItemCount + ", " + Thread.currentThread().getName());
+            Log.d(TAG, ">>>>>mAdapter getItemCount: " + currentItemCount + ", " + Thread.currentThread().getName());
             mWrapperAdapter.notifyDataSetChanged();
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -515,33 +515,40 @@ public class MarsRefreshView extends FrameLayout {
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount) {
-            Log.d("onChanged", ">>>>>onItemRangeChanged<<<<<");
+            Log.d(TAG, ">>>>>onItemRangeChanged<<<<<");
             mWrapperAdapter.notifyItemRangeChanged(positionStart + (headerViewNotNullAndVisible() ? 1 : 0), itemCount);
         }
 
         @Override
         public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
-            Log.d("onChanged", ">>>>>onItemRangeChanged<<<<<");
+            Log.d(TAG, ">>>>>onItemRangeChanged<<<<<");
             mWrapperAdapter.notifyItemRangeChanged(positionStart + (headerViewNotNullAndVisible() ? 1 : 0), itemCount, payload);
         }
 
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
-            Log.d("onChanged", ">>>>>onItemRangeInserted<<<<<");
+            Log.d(TAG, ">>>>>onItemRangeInserted<<<<<");
             mWrapperAdapter.notifyItemRangeInserted(positionStart + (headerViewNotNullAndVisible() ? 1 : 0), itemCount);
         }
 
         @Override
         public void onItemRangeRemoved(int positionStart, int itemCount) {
-            Log.d("onChanged", ">>>>>onItemRangeRemoved<<<<<");
+            Log.d(TAG, ">>>>>onItemRangeRemoved<<<<<");
             mWrapperAdapter.notifyItemRangeRemoved(positionStart + (headerViewNotNullAndVisible() ? 1 : 0), itemCount);
         }
 
         @Override
         public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-            Log.d("onChanged", ">>>>>onItemRangeMoved<<<<<");
+            Log.d(TAG, ">>>>>onItemRangeMoved<<<<<");
             mWrapperAdapter.notifyItemMoved(fromPosition + (headerViewNotNullAndVisible() ? 1 : 0), toPosition + (headerViewNotNullAndVisible() ? 1 : 0));
         }
+    }
+
+    private void resetComplete() {
+        Log.d(TAG, ">>>>>resetComplete<<<<<");
+        isComplete = false;
+        mRecyclerView.setTag(R.id.pre_load_more, null);
+        indexPage = storeIndexPage;
     }
 
     private class PreLoadMoreInfo {
@@ -565,7 +572,7 @@ public class MarsRefreshView extends FrameLayout {
 
     private void onListViewLoadMore() {
         int lastVisibleItemPosition = mListView.getLastVisiblePosition();
-        Log.d("onLoadMore", ">>>>>lastVisibleItemPosition: " + lastVisibleItemPosition);
+        Log.d(TAG, ">>>>>onListViewLoadMore, lastVisibleItemPosition: " + lastVisibleItemPosition);
         if (lastVisibleItemPosition == mListView.getAdapter().getCount() - 1) {
             if (isComplete) {
                 return;
@@ -625,8 +632,8 @@ public class MarsRefreshView extends FrameLayout {
     private void onPreOnLoadMore(RecyclerView recyclerView) {
         int lastVisiblePosition = mLinearLayoutManager.findLastVisibleItemPosition();
         int loadPosition = mRecyclerView.getAdapter().getItemCount() - offset - (isHaveFooterView ? 1 : 0) - (headerViewNotNullAndVisible() ? 1 : 0);
-        Log.d("onPreLoadMore", ">>>>>onScrolled: " + lastVisiblePosition + ",loadPosition: " + loadPosition);
         PreLoadMoreInfo preLoadMoreInfo = (PreLoadMoreInfo) recyclerView.getTag(R.id.pre_load_more);
+        Log.d(TAG, ">>>>>onPreLoadMore, onScrolled: " + lastVisiblePosition + ",loadPosition: " + loadPosition + ", preLoadMoreInfo 是否为Null " + (preLoadMoreInfo != null));
         if (preLoadMoreInfo != null) {
             if (preLoadMoreInfo.lastVisiblePosition == lastVisiblePosition
                     || preLoadMoreInfo.loadPosition == loadPosition) {
@@ -649,22 +656,27 @@ public class MarsRefreshView extends FrameLayout {
                 if (mFooterView != null) mFooterView.onLoadingStyle();
                 isLoadMoreEnable = true;
             }
+            Log.d(TAG, "onPreLoadMore, isLoadMoreEnable: " + isLoadMoreEnable);
             if (isLoadMoreEnable && mMarsOnLoadListener != null) {
+                Log.d(TAG, "onPreLoadMore, have been onPreLoaded，on mMarsOnLoadListener");
                 mMarsOnLoadListener.onLoadMore();
             }
             if (isLoadMoreEnable && mVenusOnLoadListener != null) {
+                Log.d(TAG, "onPreLoadMore, have been onPreLoaded，on mVenusOnLoadListener");
                 indexPage++;
                 mVenusOnLoadListener.onLoadMore(indexPage);
             }
             if (isLoadMoreEnable && mMercuryOnLoadMoreListener != null) {
+                Log.d(TAG, "onPreLoadMore, have been onPreLoaded，on mMercuryOnLoadMoreListener");
                 indexPage++;
                 mMercuryOnLoadMoreListener.onLoadMore(indexPage);
             }
-            PreLoadMoreInfo info = new PreLoadMoreInfo();
-            info.lastVisiblePosition = lastVisiblePosition;
-            info.loadPosition = loadPosition;
-            recyclerView.setTag(R.id.pre_load_more, info);
-            Log.d("onPreLoadMore", "have been onPreLoaded，lastVisiblePosition: " + lastVisiblePosition);
+            if (isLoadMoreEnable) {
+                PreLoadMoreInfo info = new PreLoadMoreInfo();
+                info.lastVisiblePosition = lastVisiblePosition;
+                info.loadPosition = loadPosition;
+                recyclerView.setTag(R.id.pre_load_more, info);
+            }
         }
     }
 
@@ -673,7 +685,7 @@ public class MarsRefreshView extends FrameLayout {
      */
     private void onLoadMore() {
         int lastVisibleItemPosition = mLinearLayoutManager.findLastVisibleItemPosition();
-        Log.d("onLoadMore", ">>>>>lastVisibleItemPosition: " + lastVisibleItemPosition);
+        Log.d(TAG, ">>>>>onLoadMore, lastVisibleItemPosition: " + lastVisibleItemPosition);
         if (lastVisibleItemPosition == mRecyclerView.getAdapter().getItemCount() - 1) {
             if (isComplete) {
                 return;
@@ -725,7 +737,7 @@ public class MarsRefreshView extends FrameLayout {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            Log.d("WrapperAdapter", ">>>>>onCreateViewHolder: " + viewType);
+            Log.d(TAG, ">>>>>WrapperAdapter, onCreateViewHolder: " + viewType);
             if (viewType == TYPE_HEADER) {
                 return new ViewHolder(isShowHeaderView ? mHeaderAndEmptyViewContainer : mHeaderView);
             } else if (viewType == TYPE_FOOTER) {
@@ -736,7 +748,7 @@ public class MarsRefreshView extends FrameLayout {
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            Log.d("WrapperAdapter", ">>>>>onBindViewHolder: " + position + ", viewType: " + getItemViewType(position));
+            Log.d(TAG, ">>>>>WrapperAdapter, onBindViewHolder: " + position + ", viewType: " + getItemViewType(position));
             if (getItemViewType(position) == TYPE_FOOTER) {
             } else if (getItemViewType(position) == TYPE_HEADER) {
             } else {
@@ -746,7 +758,7 @@ public class MarsRefreshView extends FrameLayout {
 
         @Override
         public int getItemViewType(int position) {
-            Log.d("WrapperAdapter", ">>>>>getItemViewType: " + position);
+            Log.d(TAG, ">>>>>WrapperAdapter, getItemViewType: " + position);
             if (headerViewNotNullAndVisible() && position == 0) {
                 return TYPE_HEADER;
             } else if (mFooterView != null && position == adapter.getItemCount() + (headerViewNotNullAndVisible() ? 1 : 0)) {
